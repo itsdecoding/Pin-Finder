@@ -9,7 +9,7 @@ Pin Finder allows targeting any niche and geographic area, extracting business l
 ## 🚀 Features (Roadmap)
 
 - [x] **Phase 1: Core Scraper Engine** — Stealth browser crawler extracting Name, Phone, Address, Website, Rating, and Review count with zero bot blocks or paid proxies.
-- [ ] **Phase 2: Lead Enrichment** — Automated crawler visiting extracted websites to discover business emails, LinkedIn, Instagram, and Facebook profiles.
+- [x] **Phase 2: On-Demand Lead Enrichment** — High-speed async crawler visiting websites to discover contact emails, LinkedIn, Instagram, Facebook, and X handles, with automatic "no website" bypass.
 - [ ] **Phase 3: SaaS Backend & Local DB** — Multi-user management, background job queue, and SQLite database for persistent storage.
 - [ ] **Phase 4: Standalone Web Interface** — Polished UI (Login, Dashboard, New Scrape, Real-time Activities, Leads Library with CSV Export).
 - [ ] **Phase 5: API & CRM Integration** — Secret API key generator, remote scrape trigger endpoint, and automatic webhook push to CRMs (HubSpot, GoHighLevel, etc.).

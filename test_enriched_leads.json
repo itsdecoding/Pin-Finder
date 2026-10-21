@@ -1,0 +1,115 @@
+[
+  {
+    "title": "Midtown Dental Miami",
+    "category": "Dentist",
+    "rating": 4.4,
+    "reviews_count": 168,
+    "address": "3915 Biscayne Blvd Unit 306, Miami, FL 33137, United States",
+    "website": "http://www.midtowndentalmiami.com/",
+    "phone": "+1 305-598-6070",
+    "maps_url": "https://www.google.com/maps/place/Midtown+Dental+Miami/data=!4m7!3m6!1s0x88d9b157bf473243:0x476f24a98fffd831!8m2!3d25.8135776!4d-80.1888198!16s%2Fg%2F1yh80779p!19sChIJQzJHv1ex2YgRMdj_j6kkb0c",
+    "emails": [],
+    "socials": {},
+    "has_website": true,
+    "enrichment_status": "site_unreachable"
+  },
+  {
+    "title": "Ultra Smile Miami",
+    "category": "Dental clinic",
+    "rating": 4.8,
+    "reviews_count": 859,
+    "address": "168 SE 1st St, Miami, FL 33131, United States",
+    "website": "http://ultrasmilemiami.com/",
+    "phone": "+1 305-372-1020",
+    "maps_url": "https://www.google.com/maps/place/Ultra+Smile+Miami/data=!4m7!3m6!1s0x88d9b69c33e8f9cd:0x7f7cb0b51a9c61d4!8m2!3d25.7733032!4d-80.1905185!16s%2Fg%2F1pp2tkgqh!19sChIJzfnoM5y22YgR1GGcGrWwfH8",
+    "emails": [],
+    "socials": {},
+    "has_website": true,
+    "enrichment_status": "no_contact_found"
+  },
+  {
+    "title": "VIKARA",
+    "category": "Cosmetic dentist",
+    "rating": 4.9,
+    "reviews_count": 344,
+    "address": "350 NE 24th St Suite 105, Miami, FL 33137, United States",
+    "website": "https://www.vikaramiami.com/",
+    "phone": "+1 305-572-1600",
+    "maps_url": "https://www.google.com/maps/place/VIKARA/data=!4m7!3m6!1s0x88d9b6aa66eddf1f:0xb20e50e6c31ace6f!8m2!3d25.799916!4d-80.1888578!16s%2Fg%2F1tcysmqj!19sChIJH9_tZqq22YgRb84aw-ZQDrI",
+    "emails": [
+      "info@vikaramiami.com"
+    ],
+    "socials": {
+      "facebook": "https://www.facebook.com/vikaraesthetics",
+      "instagram": "https://www.instagram.com/vikara_esthetics/"
+    },
+    "has_website": true,
+    "enrichment_status": "enriched"
+  },
+  {
+    "title": "Relax and Smile Dental Care",
+    "category": "Dental clinic",
+    "rating": 4.9,
+    "reviews_count": 940,
+    "address": "271 NE 2nd St, Miami, FL 33132, United States",
+    "website": "https://www.relaxandsmile.com/?utm_source=GMB&utm_medium=organic&utm_campaign=DevOptimization&utm_content=Website",
+    "phone": "+1 786-983-4812",
+    "maps_url": "https://www.google.com/maps/place/Relax+and+Smile+Dental+Care/data=!4m7!3m6!1s0x88d9b69ef54365f1:0x9d56ac0453fc14e!8m2!3d25.7763227!4d-80.1887702!16s%2Fg%2F1v8gcvld!19sChIJ8WVD9Z622YgRTsE_RcBq1Qk",
+    "emails": [],
+    "socials": {
+      "facebook": "https://www.facebook.com/relaxandsmiledentalcare/",
+      "instagram": "https://www.instagram.com/relaxandsmiledental/",
+      "linkedin": "https://www.linkedin.com/company/relaxandsmiledentalcare",
+      "twitter": "https://x.com/RelaxandSmileD1"
+    },
+    "has_website": true,
+    "enrichment_status": "enriched"
+  },
+  {
+    "title": "Dentists in Brickell - HQ Dontics Dental Centre",
+    "category": "Prosthodontist",
+    "rating": 4.9,
+    "reviews_count": 784,
+    "address": "1060 Brickell Ave Suite 103/M2, Miami, FL 33131, United States",
+    "website": "https://www.hqdontics.com/",
+    "phone": "+1 305-373-9699",
+    "maps_url": "https://www.google.com/maps/place/Dentists+in+Brickell+-+HQ+Dontics+Dental+Centre/data=!4m7!3m6!1s0x88d9b683e08f74d1:0x9ddd6313d4fea484!8m2!3d25.7631375!4d-80.1917891!16s%2Fg%2F1tlbpyyw!19sChIJ0XSP4IO22YgRhKT-1BNj3Z0",
+    "emails": [
+      "info@hqdontics.com"
+    ],
+    "socials": {
+      "facebook": "https://www.facebook.com/hqdontics",
+      "instagram": "https://www.instagram.com/hqdontics"
+    },
+    "has_website": true,
+    "enrichment_status": "enriched"
+  },
+  {
+    "title": "Biscayne Dental Lab (No Website)",
+    "category": "Dental laboratory",
+    "rating": 4.5,
+    "reviews_count": 12,
+    "address": "100 Biscayne Blvd, Miami, FL",
+    "website": "",
+    "phone": "+1 305-555-0122",
+    "maps_url": "https://maps.google.com/?cid=12345",
+    "emails": [],
+    "socials": {},
+    "has_website": false,
+    "enrichment_status": "no_website"
+  },
+  {
+    "title": "Dr. Carlos Ortho Clinic (No Website)",
+    "category": "Orthodontist",
+    "rating": 4.9,
+    "reviews_count": 88,
+    "address": "400 NW 2nd Ave, Miami, FL",
+    "website": null,
+    "phone": "+1 305-555-0199",
+    "maps_url": "https://maps.google.com/?cid=67890",
+    "emails": [],
+    "socials": {},
+    "has_website": false,
+    "enrichment_status": "no_website"
+  }
+]
