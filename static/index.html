@@ -328,19 +328,98 @@
           </div>
         </div>
 
+        <!-- API Keys Management Box -->
         <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
           <div class="flex items-center justify-between">
             <div>
-              <h3 class="text-base font-bold text-slate-800">CRM & Webhook Connection (Phase 5)</h3>
-              <p class="text-xs text-slate-500 mt-0.5">Connect GoHighLevel, HubSpot, Zapier, or Make to automatically receive new leads.</p>
+              <h3 class="text-base font-bold text-slate-800">API Authorization Keys</h3>
+              <p class="text-xs text-slate-500 mt-0.5">Use API keys to authenticate external CRMs, Zapier, or automation scripts.</p>
             </div>
-            <span class="text-xs px-2.5 py-0.5 rounded-full font-medium bg-amber-50 text-amber-700 border border-amber-200">Coming in Phase 5</span>
+            <button onclick="createApiKey()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm transition">
+              + Generate New API Key
+            </button>
           </div>
 
-          <div class="border border-dashed border-slate-200 rounded-lg p-5 text-center bg-slate-50 space-y-2">
-            <p class="text-xs font-semibold text-slate-700">API Key & Webhook Dispatcher</p>
-            <p class="text-xs text-slate-500 max-w-md mx-auto">In Phase 5, you will be able to generate unique secret API keys and paste your CRM webhook URL to auto-push leads.</p>
+          <!-- New Key Banner (Shown when generated) -->
+          <div id="new-key-alert" class="hidden p-4 rounded-xl bg-amber-50 border border-amber-200 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-amber-900">⚠️ Save your secret key now! It won't be shown again in full.</span>
+              <button onclick="document.getElementById('new-key-alert').classList.add('hidden')" class="text-amber-700 text-xs font-bold">✕</button>
+            </div>
+            <div class="flex items-center gap-2">
+              <input type="text" id="new-key-value" readonly class="flex-1 text-xs font-mono bg-white border border-amber-300 rounded-lg px-3 py-2 text-amber-900 select-all">
+              <button onclick="copyGeneratedKey()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold px-3 py-2 rounded-lg transition">
+                Copy 📋
+              </button>
+            </div>
           </div>
+
+          <!-- Active Keys Table -->
+          <div class="border border-slate-100 rounded-lg overflow-hidden">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100">
+                <tr>
+                  <th class="px-4 py-2.5">Key Name</th>
+                  <th class="px-4 py-2.5">Key Token</th>
+                  <th class="px-4 py-2.5">Created</th>
+                  <th class="px-4 py-2.5">Status</th>
+                  <th class="px-4 py-2.5 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="api-keys-table-body" class="divide-y divide-slate-100">
+                <tr><td colspan="5" class="px-4 py-4 text-center text-slate-400">Loading API keys...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- CRM Webhook Auto-Push Box -->
+        <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-base font-bold text-slate-800">CRM Webhook Auto-Push</h3>
+              <p class="text-xs text-slate-500 mt-0.5">Automatically send freshly scraped and enriched leads directly into your CRM.</p>
+            </div>
+            <span class="text-xs px-2.5 py-0.5 rounded-full font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">Active</span>
+          </div>
+
+          <div class="space-y-4 pt-1">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">CRM Webhook URL</label>
+              <input type="url" id="webhook-url-input" placeholder="https://services.leadconnectorhq.com/hooks/... or https://webhook.site/..." class="w-full text-xs font-mono border border-slate-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+              <p class="text-[11px] text-slate-500 mt-1">Paste your GoHighLevel, HubSpot, Zapier, Make, or custom CRM webhook URL.</p>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <input type="checkbox" id="webhook-autopush-check" class="rounded text-indigo-600 focus:ring-indigo-500 h-4 w-4">
+              <label for="webhook-autopush-check" class="text-xs font-medium text-slate-700 cursor-pointer">
+                Automatically push new leads as soon as any scrape campaign finishes
+              </label>
+            </div>
+
+            <div class="flex items-center gap-3 pt-2">
+              <button onclick="saveWebhookConfig()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2 rounded-lg shadow-sm transition">
+                Save Webhook Settings
+              </button>
+              <button onclick="sendTestWebhook()" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-xs font-semibold px-4 py-2 rounded-lg transition flex items-center gap-1.5">
+                ⚡ Send Test Webhook to CRM
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inbound API Quick Guide Box -->
+        <div class="bg-slate-900 text-slate-200 rounded-xl p-6 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-indigo-400">Remote API Control (Inbound)</h4>
+            <span class="text-[10px] text-slate-400">cURL / Zapier / Python</span>
+          </div>
+          <p class="text-xs text-slate-300">Your CRM can trigger scrapes remotely without opening this software:</p>
+          <pre class="bg-slate-950 p-3 rounded-lg text-[11px] font-mono text-emerald-400 overflow-x-auto border border-slate-800">
+curl -X POST "http://localhost:8000/api/v1/external/jobs" \
+  -H "X-API-Key: pf_live_YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"niche": "Dentists", "location": "Miami, FL", "target_count": 25}'</pre>
         </div>
       </section>
 
@@ -435,6 +514,7 @@
       if (viewName === 'dashboard') loadDashboard();
       if (viewName === 'activities') loadActivities();
       if (viewName === 'leads') loadLeads();
+      if (viewName === 'settings') loadSettings();
     }
 
     // Dashboard Loader
@@ -741,6 +821,144 @@
 
     function exportCSV() {
       window.location.href = '/api/v1/export/csv';
+    }
+
+    // Settings & Integrations Handlers
+    async function loadSettings() {
+      loadApiKeys();
+      loadWebhookConfig();
+    }
+
+    async function loadApiKeys() {
+      try {
+        const res = await fetch('/api/v1/integrations/api-keys', { headers: getAuthHeaders() });
+        if (res.ok) {
+          const data = await res.json();
+          renderApiKeys(data.keys || []);
+        }
+      } catch (err) {
+        console.error("Failed to load API keys", err);
+      }
+    }
+
+    function renderApiKeys(keys) {
+      const tbody = document.getElementById('api-keys-table-body');
+      if (!keys || keys.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-4 text-center text-slate-400">No API keys created yet. Click "+ Generate New API Key" above.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = keys.map(k => `
+        <tr class="hover:bg-slate-50">
+          <td class="px-4 py-2.5 font-bold text-slate-800">${k.name}</td>
+          <td class="px-4 py-2.5 font-mono text-slate-600">${k.masked}</td>
+          <td class="px-4 py-2.5 text-slate-500">${k.created_at}</td>
+          <td class="px-4 py-2.5">
+            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${k.is_active ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}">
+              ${k.is_active ? 'Active' : 'Revoked'}
+            </span>
+          </td>
+          <td class="px-4 py-2.5 text-right">
+            ${k.is_active ? `<button onclick="revokeKey(${k.id})" class="text-[11px] text-rose-600 hover:text-rose-800 font-semibold">Revoke</button>` : `<span class="text-slate-400 italic">Inactive</span>`}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function createApiKey() {
+      const name = prompt("Enter a label for this API Key (e.g. 'GoHighLevel CRM', 'Zapier'):", "CRM Integration Key");
+      if (!name) return;
+      try {
+        const res = await fetch('/api/v1/integrations/api-keys', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ name })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const keyObj = data.api_key;
+          document.getElementById('new-key-value').value = keyObj.key;
+          document.getElementById('new-key-alert').classList.remove('hidden');
+          showToast("API key generated successfully!", "success");
+          loadApiKeys();
+        } else {
+          showToast("Failed to create API key", "error");
+        }
+      } catch (err) {
+        showToast("Network error generating API key", "error");
+      }
+    }
+
+    async function revokeKey(keyId) {
+      if (!confirm("Are you sure you want to revoke this API key? External systems using it will be blocked.")) return;
+      try {
+        const res = await fetch(`/api/v1/integrations/api-keys/${keyId}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders()
+        });
+        if (res.ok) {
+          showToast("API key revoked", "success");
+          loadApiKeys();
+        }
+      } catch (err) {
+        showToast("Failed to revoke key", "error");
+      }
+    }
+
+    function copyGeneratedKey() {
+      const input = document.getElementById('new-key-value');
+      input.select();
+      navigator.clipboard.writeText(input.value);
+      showToast("API Key copied to clipboard! 📋", "success");
+    }
+
+    async function loadWebhookConfig() {
+      try {
+        const res = await fetch('/api/v1/integrations/webhook', { headers: getAuthHeaders() });
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById('webhook-url-input').value = data.webhook_url || '';
+          document.getElementById('webhook-autopush-check').checked = !!data.auto_push;
+        }
+      } catch (err) {
+        console.error("Failed to load webhook config", err);
+      }
+    }
+
+    async function saveWebhookConfig() {
+      const url = document.getElementById('webhook-url-input').value.trim();
+      const autoPush = document.getElementById('webhook-autopush-check').checked;
+      try {
+        const res = await fetch('/api/v1/integrations/webhook', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ webhook_url: url, auto_push: autoPush })
+        });
+        if (res.ok) {
+          showToast("CRM Webhook settings saved!", "success");
+        } else {
+          showToast("Failed to save webhook settings", "error");
+        }
+      } catch (err) {
+        showToast("Network error saving webhook", "error");
+      }
+    }
+
+    async function sendTestWebhook() {
+      showToast("Dispatching test lead to CRM Webhook...", "success");
+      try {
+        const res = await fetch('/api/v1/integrations/webhook/test', {
+          method: 'POST',
+          headers: getAuthHeaders()
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`CRM received test lead! Status code: ${data.status_code}`, "success");
+        } else {
+          showToast(data.detail || "Test failed", "error");
+        }
+      } catch (err) {
+        showToast("Error connecting to webhook test endpoint", "error");
+      }
     }
 
     // Auth Handling

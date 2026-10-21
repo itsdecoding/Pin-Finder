@@ -1,6 +1,7 @@
 import sqlite3
 import json
 import os
+import secrets
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 
@@ -78,6 +79,14 @@ def init_db(db_path: str = DB_PATH):
         is_active BOOLEAN DEFAULT 1,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+    """)
+
+    # 5. Settings Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS settings (
+        key TEXT PRIMARY KEY,
+        value TEXT
     );
     """)
 
@@ -228,3 +237,101 @@ def list_leads(job_id: Optional[int] = None, filter_type: Optional[str] = None, 
         d["socials"] = json.loads(d["socials"]) if d["socials"] else {}
         results.append(d)
     return results
+
+# --- API KEY HELPERS ---
+def create_api_key(user_id: int, name: str = "Default Key", db_path: str = DB_PATH) -> Dict[str, Any]:
+    """Generate a new secure API key with prefix pf_live_."""
+    raw_key = f"pf_live_{secrets.token_hex(20)}"
+    conn = get_connection(db_path)
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO api_keys (user_id, key_value, name, is_active) VALUES (?, ?, ?, 1);",
+        (user_id, raw_key, name)
+    )
+    key_id = cur.lastrowid
+    conn.commit()
+    conn.close()
+    return {
+        "id": key_id,
+        "name": name,
+        "key": raw_key,
+        "masked": f"pf_live_...{raw_key[-6:]}",
+        "is_active": True
+    }
+
+def list_api_keys(user_id: int, db_path: str = DB_PATH) -> List[Dict[str, Any]]:
+    """List API keys with masked values for security."""
+    conn = get_connection(db_path)
+    cur = conn.cursor()
+    cur.execute("SELECT id, name, key_value, is_active, created_at FROM api_keys WHERE user_id = ? ORDER BY id DESC;", (user_id,))
+    rows = cur.fetchall()
+    conn.close()
+    results = []
+    for r in rows:
+        raw = r["key_value"]
+        results.append({
+            "id": r["id"],
+            "name": r["name"],
+            "masked": f"pf_live_...{raw[-6:]}",
+            "is_active": bool(r["is_active"]),
+            "created_at": r["created_at"]
+        })
+    return results
+
+def revoke_api_key(key_id: int, user_id: int, db_path: str = DB_PATH) -> bool:
+    """Revoke (deactivate) an API key."""
+    conn = get_connection(db_path)
+    cur = conn.cursor()
+    cur.execute("UPDATE api_keys SET is_active = 0 WHERE id = ? AND user_id = ?;", (key_id, user_id))
+    affected = cur.rowcount
+    conn.commit()
+    conn.close()
+    return affected > 0
+
+def validate_api_key(key_value: str, db_path: str = DB_PATH) -> Optional[Dict[str, Any]]:
+    """Validate an incoming API key against active keys in database."""
+    if not key_value or not key_value.startswith("pf_live_"):
+        return None
+    conn = get_connection(db_path)
+    cur = conn.cursor()
+    cur.execute(
+        """
+        SELECT k.id, k.user_id, k.name, u.username, u.email, u.role 
+        FROM api_keys k 
+        JOIN users u ON k.user_id = u.id 
+        WHERE k.key_value = ? AND k.is_active = 1;
+        """,
+        (key_value.strip(),)
+    )
+    row = cur.fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+# --- SETTINGS & WEBHOOK HELPERS ---
+def get_setting(key: str, default: str = "", db_path: str = DB_PATH) -> str:
+    conn = get_connection(db_path)
+    cur = conn.cursor()
+    cur.execute("SELECT value FROM settings WHERE key = ?;", (key,))
+    row = cur.fetchone()
+    conn.close()
+    return row["value"] if row else default
+
+def set_setting(key: str, value: str, db_path: str = DB_PATH):
+    conn = get_connection(db_path)
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value;",
+        (key, value)
+    )
+    conn.commit()
+    conn.close()
+
+def get_webhook_config(db_path: str = DB_PATH) -> Dict[str, Any]:
+    url = get_setting("crm_webhook_url", "", db_path)
+    auto_push = get_setting("crm_auto_push", "false", db_path) == "true"
+    return {"webhook_url": url, "auto_push": auto_push}
+
+def save_webhook_config(url: str, auto_push: bool, db_path: str = DB_PATH):
+    set_setting("crm_webhook_url", url.strip(), db_path)
+    set_setting("crm_auto_push", "true" if auto_push else "false", db_path)
+
