@@ -1,162 +1,221 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pin Finder | Google Maps Lead Generation SaaS</title>
+  <title>Pin Finder | Executive Lead Generation Platform</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts Inter -->
+  <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
   <style>
     body { font-family: 'Inter', sans-serif; }
-    [x-cloak] { display: none !important; }
+    /* Custom Sleek Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    /* Shimmer Skeleton Animation */
+    @keyframes shimmer {
+      100% { transform: translateX(100%); }
+    }
+    .skeleton-box {
+      position: relative;
+      overflow: hidden;
+      background-color: #f1f5f9;
+    }
+    .skeleton-box::after {
+      position: absolute;
+      top: 0; right: 0; bottom: 0; left: 0;
+      transform: translateX(-100%);
+      background-image: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0,
+        rgba(255, 255, 255, 0.6) 20%,
+        rgba(255, 255, 255, 0.6) 60%,
+        rgba(255, 255, 255, 0)
+      );
+      animation: shimmer 1.8s infinite;
+      content: '';
+    }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased flex h-screen overflow-hidden">
+<body class="bg-slate-900 text-slate-100 antialiased h-full flex overflow-hidden select-none">
 
-  <!-- ==================== SIDEBAR ==================== -->
-  <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between border-r border-slate-800 flex-shrink-0">
+  <!-- ==================== EXECUTIVE SIDEBAR ==================== -->
+  <aside class="w-64 bg-slate-950/80 backdrop-blur-xl border-r border-slate-800/80 flex flex-col justify-between flex-shrink-0 z-30">
     <div>
-      <!-- Brand Logo -->
-      <div class="h-16 flex items-center px-6 border-b border-slate-800 gap-3">
-        <div class="w-9 h-9 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-md shadow-indigo-500/20">
+      <!-- Brand Logo Header -->
+      <div class="h-16 flex items-center px-6 border-b border-slate-800/80 gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-800 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-indigo-500/25 ring-1 ring-white/20">
           📍
         </div>
         <div>
-          <h1 class="font-bold text-white tracking-tight leading-tight">Pin Finder</h1>
-          <p class="text-xs text-indigo-400 font-medium tracking-wide uppercase">Lead Engine</p>
+          <div class="flex items-center gap-1.5">
+            <h1 class="font-extrabold text-white tracking-tight text-sm">Pin Finder</h1>
+            <span class="text-[9px] uppercase px-1.5 py-0.5 rounded font-mono font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">PRO</span>
+          </div>
+          <p class="text-[10px] text-slate-400 font-medium tracking-wider uppercase">Lead Generation SaaS</p>
         </div>
       </div>
 
       <!-- Navigation Links -->
-      <nav class="p-4 space-y-1.5 text-sm font-medium">
-        <button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-white bg-slate-800/80 transition-colors">
-          <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+      <nav class="p-3.5 space-y-1 text-xs font-semibold">
+        <button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-white bg-indigo-600/90 shadow-sm shadow-indigo-600/30 transition-all">
+          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
           Dashboard
         </button>
-        <button onclick="switchView('new-scrape')" id="nav-new-scrape" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        <button onclick="switchView('new-scrape')" id="nav-new-scrape" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-900 transition-all">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
           New Scrape
         </button>
-        <button onclick="switchView('activities')" id="nav-activities" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        <button onclick="switchView('activities')" id="nav-activities" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-900 transition-all">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
           Activities & Tasks
         </button>
-        <button onclick="switchView('leads')" id="nav-leads" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        <button onclick="switchView('leads')" id="nav-leads" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-900 transition-all">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
           Leads Library
         </button>
-        <button onclick="switchView('settings')" id="nav-settings" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <button onclick="switchView('settings')" id="nav-settings" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-900 transition-all">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
           API & Settings
         </button>
       </nav>
     </div>
 
-    <!-- User Profile & Status Footer -->
-    <div class="p-4 border-t border-slate-800">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center font-bold text-xs text-white" id="user-avatar">
+    <!-- User Profile & System Status -->
+    <div class="p-3.5 border-t border-slate-800/80 bg-slate-950/40">
+      <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-slate-800/80">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600 to-indigo-400 flex items-center justify-center font-bold text-xs text-white shadow" id="user-avatar">
             CA
           </div>
           <div class="overflow-hidden">
-            <p class="text-xs font-semibold text-white truncate" id="user-display-name">Company Admin</p>
-            <p class="text-[10px] text-emerald-400 font-medium">● System Online</p>
+            <p class="text-xs font-bold text-slate-200 truncate" id="user-display-name">Company Admin</p>
+            <div class="flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span class="text-[10px] text-emerald-400 font-medium">Self-Hosted $0</span>
+            </div>
           </div>
         </div>
-        <button onclick="handleLogout()" title="Logout" class="text-slate-400 hover:text-rose-400 p-1.5 rounded transition">
+        <button onclick="handleLogout()" title="Logout" class="text-slate-400 hover:text-rose-400 p-1.5 rounded-lg hover:bg-slate-800 transition">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
         </button>
       </div>
     </div>
   </aside>
 
-  <!-- ==================== MAIN CONTENT AREA ==================== -->
-  <main class="flex-1 flex flex-col overflow-hidden bg-slate-100">
+  <!-- ==================== MAIN APPLICATION AREA ==================== -->
+  <main class="flex-1 flex flex-col overflow-hidden bg-slate-900 relative">
     
-    <!-- Top Header -->
-    <header class="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between flex-shrink-0 shadow-sm">
-      <div class="flex items-center gap-4">
-        <h2 id="page-title" class="text-xl font-bold text-slate-800">Dashboard</h2>
-        <span class="text-xs px-2.5 py-0.5 rounded-full font-medium bg-indigo-50 text-indigo-700 border border-indigo-200" id="header-badge">Internal Edition</span>
-      </div>
+    <!-- Top Executive Header -->
+    <header class="h-16 bg-slate-950/40 backdrop-blur-md border-b border-slate-800/80 px-8 flex items-center justify-between flex-shrink-0 z-20">
       <div class="flex items-center gap-3">
-        <button onclick="switchView('new-scrape')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        <h2 id="page-title" class="text-lg font-bold text-white tracking-tight">Dashboard</h2>
+        <span class="text-[10px] px-2 py-0.5 rounded-full font-mono font-medium bg-indigo-500/10 text-indigo-300 border border-indigo-500/20" id="header-badge">Internal Standalone</span>
+      </div>
+      <div class="flex items-center gap-2.5">
+        <button onclick="switchView('new-scrape')" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg shadow-indigo-600/20 transition-all active:scale-95">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
           Quick Search
         </button>
-        <button onclick="exportCSV()" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-xs font-semibold px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition">
-          <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        <button onclick="exportCSV()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold px-3.5 py-2 rounded-xl flex items-center gap-2 transition active:scale-95 shadow-sm">
+          <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
           Export CSV
         </button>
       </div>
     </header>
 
-    <!-- Scrollable View Container -->
-    <div class="flex-1 overflow-y-auto p-8" id="view-container">
+    <!-- Scrollable Workspace -->
+    <div class="flex-1 overflow-y-auto p-8 relative" id="view-container">
 
       <!-- ================= SCREEN 1: DASHBOARD ================= -->
       <section id="view-dashboard" class="space-y-6">
         <!-- Metric Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
-          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-            <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Leads Collected</p>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="bg-slate-950/60 p-5 rounded-2xl border border-slate-800/80 shadow-sm relative overflow-hidden group hover:border-slate-700 transition">
+            <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-indigo-500/5 rounded-full blur-xl group-hover:bg-indigo-500/10 transition"></div>
+            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Total Leads</p>
             <div class="flex items-baseline justify-between mt-2">
-              <span class="text-3xl font-extrabold text-slate-800" id="stat-total-leads">0</span>
-              <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">All Time</span>
+              <span class="text-3xl font-extrabold text-white tracking-tight" id="stat-total-leads">0</span>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">All Time</span>
             </div>
           </div>
-          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-            <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">With Website</p>
+          <div class="bg-slate-950/60 p-5 rounded-2xl border border-slate-800/80 shadow-sm relative overflow-hidden group hover:border-slate-700 transition">
+            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">With Website</p>
             <div class="flex items-baseline justify-between mt-2">
-              <span class="text-3xl font-extrabold text-blue-600" id="stat-with-website">0</span>
-              <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">Enrichable</span>
+              <span class="text-3xl font-extrabold text-blue-400 tracking-tight" id="stat-with-website">0</span>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/20">Enrichable</span>
             </div>
           </div>
-          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-            <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">No Website</p>
+          <div class="bg-slate-950/60 p-5 rounded-2xl border border-slate-800/80 shadow-sm relative overflow-hidden group hover:border-slate-700 transition">
+            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">No Website</p>
             <div class="flex items-baseline justify-between mt-2">
-              <span class="text-3xl font-extrabold text-amber-600" id="stat-no-website">0</span>
-              <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-amber-50 text-amber-700">Phone Outreach</span>
+              <span class="text-3xl font-extrabold text-amber-400 tracking-tight" id="stat-no-website">0</span>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20">Phone Target</span>
             </div>
           </div>
-          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-            <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Enriched Leads</p>
+          <div class="bg-slate-950/60 p-5 rounded-2xl border border-slate-800/80 shadow-sm relative overflow-hidden group hover:border-slate-700 transition">
+            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Enriched Leads</p>
             <div class="flex items-baseline justify-between mt-2">
-              <span class="text-3xl font-extrabold text-emerald-600" id="stat-enriched">0</span>
-              <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">Emails & Socials</span>
+              <span class="text-3xl font-extrabold text-emerald-400 tracking-tight" id="stat-enriched">0</span>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">Emails & Socials</span>
             </div>
           </div>
         </div>
 
-        <!-- Quick Launch Banner & Recent Scrapes -->
+        <!-- Quick Launch & Recent Campaigns -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <!-- Quick Launch Form -->
-          <div class="bg-gradient-to-br from-indigo-900 to-slate-900 rounded-xl p-6 text-white shadow-md flex flex-col justify-between">
+          <div class="bg-gradient-to-br from-indigo-950/90 via-slate-900 to-slate-950 rounded-2xl p-6 border border-indigo-900/50 shadow-xl flex flex-col justify-between">
             <div>
-              <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-medium mb-3 border border-indigo-400/30">
-                ⚡ Instant Lead Finder
+              <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-300 text-[10px] font-semibold mb-3 border border-indigo-400/20">
+                ⚡ Instant Extraction
               </div>
-              <h3 class="text-lg font-bold">Start a New Scrape</h3>
-              <p class="text-xs text-slate-300 mt-1 mb-4">Target Google Maps businesses by niche and geographical location.</p>
+              <h3 class="text-base font-bold text-white">Start New Lead Search</h3>
+              <p class="text-xs text-slate-400 mt-1 mb-4">Target Google Maps listings with zero rate limits or bot blocks.</p>
               
               <div class="space-y-3">
                 <div>
-                  <label class="block text-[11px] font-medium text-slate-300 uppercase mb-1">Niche / Category</label>
-                  <input type="text" id="quick-niche" placeholder="e.g. Dentists, Plumbers, Roofer" class="w-full text-xs bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-400">
+                  <label class="block text-[10px] font-semibold text-slate-400 uppercase mb-1">Niche / Category</label>
+                  <input type="text" id="quick-niche" placeholder="e.g. Dentists, Plumbers, Roofer" class="w-full text-xs bg-slate-950/80 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
                 </div>
                 <div>
-                  <label class="block text-[11px] font-medium text-slate-300 uppercase mb-1">Target Location</label>
-                  <input type="text" id="quick-location" placeholder="e.g. Miami, FL or Austin, TX" class="w-full text-xs bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-400">
+                  <label class="block text-[10px] font-semibold text-slate-400 uppercase mb-1">Target Location</label>
+                  <input type="text" id="quick-location" placeholder="e.g. Miami, FL or Austin, TX" class="w-full text-xs bg-slate-950/80 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
                 </div>
                 <div>
-                  <label class="block text-[11px] font-medium text-slate-300 uppercase mb-1">Target Quantity</label>
-                  <select id="quick-count" class="w-full text-xs bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-400">
-                    <option value="10">10 Leads (Fast Test)</option>
+                  <label class="block text-[10px] font-semibold text-slate-400 uppercase mb-1">Target Volume</label>
+                  <select id="quick-count" class="w-full text-xs bg-slate-950/80 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-indigo-500 transition">
+                    <option value="10">10 Leads (Instant test)</option>
                     <option value="25">25 Leads</option>
                     <option value="50">50 Leads</option>
                     <option value="100">100 Leads</option>
@@ -165,71 +224,74 @@
               </div>
             </div>
 
-            <button onclick="submitQuickScrape()" class="mt-5 w-full bg-indigo-500 hover:bg-indigo-600 text-white font-semibold text-xs py-2.5 rounded-lg transition shadow-md flex items-center justify-center gap-2">
+            <button onclick="submitQuickScrape()" class="mt-5 w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs py-2.5 rounded-xl transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 active:scale-98">
               Launch Campaign 🚀
             </button>
           </div>
 
           <!-- Recent Campaigns Box -->
-          <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+          <div class="lg:col-span-2 bg-slate-950/60 rounded-2xl border border-slate-800/80 p-6 shadow-sm">
             <div class="flex items-center justify-between mb-4">
-              <h3 class="text-base font-bold text-slate-800">Recent Scraping Tasks</h3>
-              <button onclick="switchView('activities')" class="text-xs text-indigo-600 font-semibold hover:underline">View All Tasks →</button>
+              <div>
+                <h3 class="text-sm font-bold text-white">Recent Scraping Tasks</h3>
+                <p class="text-[11px] text-slate-400">Background tasks and past executions</p>
+              </div>
+              <button onclick="switchView('activities')" class="text-xs text-indigo-400 font-semibold hover:text-indigo-300 transition">View All →</button>
             </div>
-            <div class="divide-y divide-slate-100" id="dashboard-recent-jobs">
-              <p class="text-xs text-slate-400 py-4 text-center">Loading recent tasks...</p>
+            <div class="divide-y divide-slate-800/80" id="dashboard-recent-jobs">
+              <p class="text-xs text-slate-500 py-6 text-center">Loading recent tasks...</p>
             </div>
           </div>
         </div>
       </section>
 
       <!-- ================= SCREEN 2: NEW SCRAPE ================= -->
-      <section id="view-new-scrape" class="max-w-2xl mx-auto bg-white rounded-xl border border-slate-200 p-8 shadow-sm space-y-6 hidden">
+      <section id="view-new-scrape" class="max-w-2xl mx-auto bg-slate-950/70 rounded-2xl border border-slate-800/80 p-8 shadow-xl space-y-6 hidden">
         <div>
-          <h3 class="text-lg font-bold text-slate-800">Create New Google Maps Scrape</h3>
-          <p class="text-xs text-slate-500 mt-1">Specify your search parameters. Scraper operates silently in the background at zero software cost.</p>
+          <h3 class="text-lg font-bold text-white tracking-tight">Create Google Maps Campaign</h3>
+          <p class="text-xs text-slate-400 mt-1">Specify parameters. Headless Chromium collects data in the background silently.</p>
         </div>
 
         <form onsubmit="handleNewScrapeSubmit(event)" class="space-y-5">
           <div>
-            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Business Niche / Category</label>
-            <input type="text" id="form-niche" required placeholder="e.g. Cosmetic Dentists, Real Estate Agencies, HVAC" class="w-full text-sm border border-slate-300 rounded-lg px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1.5">Business Niche / Keyword</label>
+            <input type="text" id="form-niche" required placeholder="e.g. Cosmetic Dentists, HVAC, Real Estate" class="w-full text-sm bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Geographic Location</label>
-            <input type="text" id="form-location" required placeholder="e.g. Miami, FL or Brooklyn, NY" class="w-full text-sm border border-slate-300 rounded-lg px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1.5">Geographic Location</label>
+            <input type="text" id="form-location" required placeholder="e.g. Miami, FL or Brooklyn, NY" class="w-full text-sm bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Target Leads Count</label>
+            <label class="block text-xs font-semibold text-slate-300 uppercase mb-2">Target Volume</label>
             <div class="grid grid-cols-4 gap-3">
-              <label class="border border-slate-200 rounded-lg p-3 text-center cursor-pointer hover:bg-slate-50 peer-checked:border-indigo-600 peer-checked:bg-indigo-50">
+              <label class="border border-slate-800 rounded-xl p-3 text-center cursor-pointer bg-slate-900/60 hover:border-indigo-500 transition">
                 <input type="radio" name="target_count" value="10" checked class="hidden peer">
-                <span class="block text-sm font-bold text-slate-800">10</span>
+                <span class="block text-sm font-bold text-white peer-checked:text-indigo-400">10</span>
                 <span class="block text-[10px] text-slate-500">Fast check</span>
               </label>
-              <label class="border border-slate-200 rounded-lg p-3 text-center cursor-pointer hover:bg-slate-50">
+              <label class="border border-slate-800 rounded-xl p-3 text-center cursor-pointer bg-slate-900/60 hover:border-indigo-500 transition">
                 <input type="radio" name="target_count" value="25" class="hidden peer">
-                <span class="block text-sm font-bold text-slate-800">25</span>
+                <span class="block text-sm font-bold text-white peer-checked:text-indigo-400">25</span>
                 <span class="block text-[10px] text-slate-500">Standard</span>
               </label>
-              <label class="border border-slate-200 rounded-lg p-3 text-center cursor-pointer hover:bg-slate-50">
+              <label class="border border-slate-800 rounded-xl p-3 text-center cursor-pointer bg-slate-900/60 hover:border-indigo-500 transition">
                 <input type="radio" name="target_count" value="50" class="hidden peer">
-                <span class="block text-sm font-bold text-slate-800">50</span>
+                <span class="block text-sm font-bold text-white peer-checked:text-indigo-400">50</span>
                 <span class="block text-[10px] text-slate-500">Deep search</span>
               </label>
-              <label class="border border-slate-200 rounded-lg p-3 text-center cursor-pointer hover:bg-slate-50">
+              <label class="border border-slate-800 rounded-xl p-3 text-center cursor-pointer bg-slate-900/60 hover:border-indigo-500 transition">
                 <input type="radio" name="target_count" value="100" class="hidden peer">
-                <span class="block text-sm font-bold text-slate-800">100</span>
+                <span class="block text-sm font-bold text-white peer-checked:text-indigo-400">100</span>
                 <span class="block text-[10px] text-slate-500">Max volume</span>
               </label>
             </div>
           </div>
 
-          <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
-            <button type="button" onclick="switchView('dashboard')" class="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancel</button>
-            <button type="submit" id="btn-submit-scrape" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs px-6 py-2.5 rounded-lg shadow-sm transition flex items-center gap-2">
+          <div class="pt-4 border-t border-slate-800/80 flex items-center justify-end gap-3">
+            <button type="button" onclick="switchView('dashboard')" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-lg">Cancel</button>
+            <button type="submit" id="btn-submit-scrape" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-6 py-2.5 rounded-xl shadow-lg shadow-indigo-600/30 transition flex items-center gap-2">
               Start Scraping Task 🚀
             </button>
           </div>
@@ -240,18 +302,18 @@
       <section id="view-activities" class="space-y-6 hidden">
         <div class="flex items-center justify-between">
           <div>
-            <h3 class="text-lg font-bold text-slate-800">Scraping Activities & History</h3>
-            <p class="text-xs text-slate-500 mt-0.5">Track real-time background task progress and past campaigns.</p>
+            <h3 class="text-base font-bold text-white tracking-tight">Activities & Background Tasks</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Real-time status updates and historical scraping tasks.</p>
           </div>
-          <button onclick="loadActivities()" class="text-xs font-medium text-indigo-600 hover:bg-indigo-50 border border-indigo-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+          <button onclick="loadActivities()" class="text-xs font-semibold text-indigo-400 hover:text-indigo-300 bg-slate-900 border border-slate-800 px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
             Refresh
           </button>
         </div>
 
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="divide-y divide-slate-100" id="activities-job-list">
-            <p class="text-xs text-slate-400 py-6 text-center">Loading tasks...</p>
+        <div class="bg-slate-950/60 rounded-2xl border border-slate-800/80 shadow-sm overflow-hidden">
+          <div class="divide-y divide-slate-800/80" id="activities-job-list">
+            <p class="text-xs text-slate-500 py-8 text-center">Loading tasks...</p>
           </div>
         </div>
       </section>
@@ -261,43 +323,41 @@
         <!-- Filter Bar & Actions -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <!-- Segment Tabs -->
-          <div class="flex items-center bg-white p-1 rounded-xl border border-slate-200 shadow-sm text-xs font-semibold">
+          <div class="flex items-center bg-slate-950/80 p-1 rounded-xl border border-slate-800/80 text-xs font-semibold">
             <button onclick="setLeadFilter('all')" id="tab-all" class="px-3.5 py-1.5 rounded-lg bg-indigo-600 text-white transition">All Leads</button>
-            <button onclick="setLeadFilter('with_website')" id="tab-with_website" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">🌐 With Website</button>
-            <button onclick="setLeadFilter('no_website')" id="tab-no_website" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">🚫 No Website</button>
-            <button onclick="setLeadFilter('enriched')" id="tab-enriched" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">✨ Enriched</button>
+            <button onclick="setLeadFilter('with_website')" id="tab-with_website" class="px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition">🌐 With Website</button>
+            <button onclick="setLeadFilter('no_website')" id="tab-no_website" class="px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition">🚫 No Website</button>
+            <button onclick="setLeadFilter('enriched')" id="tab-enriched" class="px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition">✨ Enriched</button>
           </div>
 
           <!-- Search and Bulk Action -->
           <div class="flex items-center gap-3">
             <div class="relative">
-              <input type="text" id="lead-search-input" oninput="handleSearchLeads(event)" placeholder="Search name, phone, address..." class="text-xs pl-8 pr-3 py-2 border border-slate-300 rounded-lg w-64 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-              <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              <input type="text" id="lead-search-input" oninput="handleSearchLeads(event)" placeholder="Search name, phone, address..." class="text-xs bg-slate-950/80 border border-slate-800 rounded-xl pl-8 pr-3 py-2 text-white placeholder-slate-500 w-64 focus:outline-none focus:border-indigo-500">
+              <svg class="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
             </div>
-            <button onclick="triggerBulkEnrichment()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-sm transition">
+            <button onclick="triggerBulkEnrichment()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-lg shadow-emerald-600/20 transition active:scale-95">
               ✨ Enrich All with Websites
             </button>
           </div>
         </div>
 
-        <!-- Leads Table -->
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
-              <thead class="bg-slate-50 text-slate-500 uppercase font-semibold border-b border-slate-200 text-[11px]">
+        <!-- Leads Table Container -->
+        <div class="bg-slate-950/70 rounded-2xl border border-slate-800/80 shadow-xl overflow-hidden">
+          <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead class="bg-slate-900/90 text-slate-400 uppercase font-semibold border-b border-slate-800/80 text-[10px] sticky top-0 backdrop-blur z-10">
                 <tr>
                   <th class="px-4 py-3">Business</th>
-                  <th class="px-4 py-3">Contact</th>
+                  <th class="px-4 py-3">Direct Phone</th>
                   <th class="px-4 py-3">Rating</th>
                   <th class="px-4 py-3">Website & Socials</th>
                   <th class="px-4 py-3">Discovered Emails</th>
-                  <th class="px-4 py-3 text-right">On-Demand Action</th>
+                  <th class="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-100 text-slate-700 font-medium" id="leads-table-body">
-                <tr>
-                  <td colspan="6" class="px-4 py-8 text-center text-slate-400">Loading leads database...</td>
-                </tr>
+              <tbody class="divide-y divide-slate-800/60 text-slate-300 font-medium" id="leads-table-body">
+                <!-- Skeletons rendered dynamically while loading -->
               </tbody>
             </table>
           </div>
@@ -306,102 +366,80 @@
 
       <!-- ================= SCREEN 5: SETTINGS & API ================= -->
       <section id="view-settings" class="max-w-3xl mx-auto space-y-6 hidden">
-        <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
-          <h3 class="text-base font-bold text-slate-800">System Information & Integrations</h3>
-          <p class="text-xs text-slate-500">Your Pin Finder instance is self-hosted and operates as an internal microservice.</p>
-
-          <div class="grid grid-cols-2 gap-4 pt-2">
-            <div class="border border-slate-100 rounded-lg p-4 bg-slate-50">
-              <span class="text-xs font-semibold text-slate-500 uppercase">Database Engine</span>
-              <p class="text-sm font-bold text-slate-800 mt-1">SQLite (WAL Mode)</p>
-              <p class="text-[11px] text-slate-500 mt-0.5">Zero maintenance local relational DB</p>
-            </div>
-            <div class="border border-slate-100 rounded-lg p-4 bg-slate-50">
-              <span class="text-xs font-semibold text-slate-500 uppercase">API Documentation</span>
-              <p class="text-sm font-bold text-indigo-600 mt-1">
-                <a href="/docs" target="_blank" class="hover:underline flex items-center gap-1">
-                  Open Swagger API Docs →
-                </a>
-              </p>
-              <p class="text-[11px] text-slate-500 mt-0.5">Interactive endpoints and testing</p>
-            </div>
-          </div>
-        </div>
-
         <!-- API Keys Management Box -->
-        <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
+        <div class="bg-slate-950/70 rounded-2xl border border-slate-800/80 p-6 shadow-sm space-y-4">
           <div class="flex items-center justify-between">
             <div>
-              <h3 class="text-base font-bold text-slate-800">API Authorization Keys</h3>
-              <p class="text-xs text-slate-500 mt-0.5">Use API keys to authenticate external CRMs, Zapier, or automation scripts.</p>
+              <h3 class="text-sm font-bold text-white">API Authorization Keys</h3>
+              <p class="text-xs text-slate-400 mt-0.5">Use API keys to authenticate external CRMs, Zapier, or automation scripts.</p>
             </div>
-            <button onclick="createApiKey()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm transition">
+            <button onclick="createApiKey()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 shadow-lg shadow-indigo-600/25 transition">
               + Generate New API Key
             </button>
           </div>
 
           <!-- New Key Banner (Shown when generated) -->
-          <div id="new-key-alert" class="hidden p-4 rounded-xl bg-amber-50 border border-amber-200 space-y-2">
+          <div id="new-key-alert" class="hidden p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-2">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-amber-900">⚠️ Save your secret key now! It won't be shown again in full.</span>
-              <button onclick="document.getElementById('new-key-alert').classList.add('hidden')" class="text-amber-700 text-xs font-bold">✕</button>
+              <span class="text-xs font-bold text-amber-300">⚠️ Save your secret key now! It won't be displayed in full again.</span>
+              <button onclick="document.getElementById('new-key-alert').classList.add('hidden')" class="text-amber-400 text-xs font-bold">✕</button>
             </div>
             <div class="flex items-center gap-2">
-              <input type="text" id="new-key-value" readonly class="flex-1 text-xs font-mono bg-white border border-amber-300 rounded-lg px-3 py-2 text-amber-900 select-all">
-              <button onclick="copyGeneratedKey()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold px-3 py-2 rounded-lg transition">
+              <input type="text" id="new-key-value" readonly class="flex-1 text-xs font-mono bg-slate-900 border border-amber-500/40 rounded-xl px-3 py-2 text-amber-200 select-all">
+              <button onclick="copyGeneratedKey()" class="bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold px-3 py-2 rounded-xl transition">
                 Copy 📋
               </button>
             </div>
           </div>
 
           <!-- Active Keys Table -->
-          <div class="border border-slate-100 rounded-lg overflow-hidden">
+          <div class="border border-slate-800 rounded-xl overflow-hidden bg-slate-900/40">
             <table class="w-full text-left text-xs">
-              <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100">
+              <thead class="bg-slate-900 text-slate-400 font-semibold border-b border-slate-800 text-[10px]">
                 <tr>
                   <th class="px-4 py-2.5">Key Name</th>
-                  <th class="px-4 py-2.5">Key Token</th>
+                  <th class="px-4 py-2.5">Token Prefix</th>
                   <th class="px-4 py-2.5">Created</th>
                   <th class="px-4 py-2.5">Status</th>
                   <th class="px-4 py-2.5 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody id="api-keys-table-body" class="divide-y divide-slate-100">
-                <tr><td colspan="5" class="px-4 py-4 text-center text-slate-400">Loading API keys...</td></tr>
+              <tbody id="api-keys-table-body" class="divide-y divide-slate-800 text-slate-300">
+                <tr><td colspan="5" class="px-4 py-4 text-center text-slate-500">Loading API keys...</td></tr>
               </tbody>
             </table>
           </div>
         </div>
 
         <!-- CRM Webhook Auto-Push Box -->
-        <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
+        <div class="bg-slate-950/70 rounded-2xl border border-slate-800/80 p-6 shadow-sm space-y-4">
           <div class="flex items-center justify-between">
             <div>
-              <h3 class="text-base font-bold text-slate-800">CRM Webhook Auto-Push</h3>
-              <p class="text-xs text-slate-500 mt-0.5">Automatically send freshly scraped and enriched leads directly into your CRM.</p>
+              <h3 class="text-sm font-bold text-white">CRM Webhook Auto-Push</h3>
+              <p class="text-xs text-slate-400 mt-0.5">Automatically stream newly scraped and enriched leads directly into your CRM.</p>
             </div>
-            <span class="text-xs px-2.5 py-0.5 rounded-full font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">Active</span>
+            <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold">Active</span>
           </div>
 
           <div class="space-y-4 pt-1">
             <div>
-              <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">CRM Webhook URL</label>
-              <input type="url" id="webhook-url-input" placeholder="https://services.leadconnectorhq.com/hooks/... or https://webhook.site/..." class="w-full text-xs font-mono border border-slate-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-              <p class="text-[11px] text-slate-500 mt-1">Paste your GoHighLevel, HubSpot, Zapier, Make, or custom CRM webhook URL.</p>
+              <label class="block text-[11px] font-semibold text-slate-400 uppercase mb-1">CRM Webhook URL</label>
+              <input type="url" id="webhook-url-input" placeholder="https://services.leadconnectorhq.com/hooks/... or https://webhook.site/..." class="w-full text-xs font-mono bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-indigo-500 transition">
+              <p class="text-[11px] text-slate-500 mt-1">Compatible with GoHighLevel, HubSpot, Zapier, Make, and custom endpoints.</p>
             </div>
 
-            <div class="flex items-center gap-2">
-              <input type="checkbox" id="webhook-autopush-check" class="rounded text-indigo-600 focus:ring-indigo-500 h-4 w-4">
-              <label for="webhook-autopush-check" class="text-xs font-medium text-slate-700 cursor-pointer">
-                Automatically push new leads as soon as any scrape campaign finishes
+            <div class="flex items-center gap-2.5">
+              <input type="checkbox" id="webhook-autopush-check" class="rounded bg-slate-900 border-slate-800 text-indigo-600 focus:ring-indigo-500 h-4 w-4">
+              <label for="webhook-autopush-check" class="text-xs text-slate-300 cursor-pointer">
+                Automatically push newly scraped leads upon campaign completion
               </label>
             </div>
 
             <div class="flex items-center gap-3 pt-2">
-              <button onclick="saveWebhookConfig()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2 rounded-lg shadow-sm transition">
+              <button onclick="saveWebhookConfig()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow transition">
                 Save Webhook Settings
               </button>
-              <button onclick="sendTestWebhook()" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-xs font-semibold px-4 py-2 rounded-lg transition flex items-center gap-1.5">
+              <button onclick="sendTestWebhook()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold px-4 py-2 rounded-xl transition flex items-center gap-1.5">
                 ⚡ Send Test Webhook to CRM
               </button>
             </div>
@@ -409,13 +447,13 @@
         </div>
 
         <!-- Inbound API Quick Guide Box -->
-        <div class="bg-slate-900 text-slate-200 rounded-xl p-6 shadow-sm space-y-3">
+        <div class="bg-slate-950/70 rounded-2xl border border-slate-800/80 p-6 shadow-sm space-y-3">
           <div class="flex items-center justify-between">
             <h4 class="text-xs font-bold uppercase tracking-wider text-indigo-400">Remote API Control (Inbound)</h4>
-            <span class="text-[10px] text-slate-400">cURL / Zapier / Python</span>
+            <span class="text-[10px] text-slate-500 font-mono">cURL / Zapier / Python</span>
           </div>
           <p class="text-xs text-slate-300">Your CRM can trigger scrapes remotely without opening this software:</p>
-          <pre class="bg-slate-950 p-3 rounded-lg text-[11px] font-mono text-emerald-400 overflow-x-auto border border-slate-800">
+          <pre class="bg-slate-900 p-3.5 rounded-xl text-[11px] font-mono text-emerald-400 overflow-x-auto border border-slate-800">
 curl -X POST "http://localhost:8000/api/v1/external/jobs" \
   -H "X-API-Key: pf_live_YOUR_KEY" \
   -H "Content-Type: application/json" \
@@ -426,27 +464,51 @@ curl -X POST "http://localhost:8000/api/v1/external/jobs" \
     </div>
   </main>
 
+  <!-- ==================== LEAD DETAIL SLIDE-OVER DRAWER ==================== -->
+  <div id="lead-drawer" class="fixed inset-y-0 right-0 w-full max-w-md bg-slate-950 border-l border-slate-800 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col justify-between">
+    <div class="p-6 border-b border-slate-800 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="text-base font-bold text-white" id="drawer-title">Business Details</span>
+        <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20" id="drawer-category">Clinic</span>
+      </div>
+      <button onclick="closeLeadDrawer()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-900 transition">
+        ✕
+      </button>
+    </div>
+
+    <div class="p-6 overflow-y-auto space-y-5 text-xs text-slate-300 flex-1" id="drawer-content">
+      <!-- Dynamic Lead Attributes populated here -->
+    </div>
+
+    <div class="p-4 border-t border-slate-800 bg-slate-900/60 flex items-center justify-end gap-2">
+      <button onclick="closeLeadDrawer()" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-lg">Close</button>
+    </div>
+  </div>
+
+  <!-- Drawer Backdrop -->
+  <div id="drawer-backdrop" onclick="closeLeadDrawer()" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-40 hidden"></div>
+
   <!-- ==================== LOGIN MODAL ==================== -->
-  <div id="auth-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-md p-8 space-y-6">
+  <div id="auth-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 rounded-3xl shadow-2xl border border-slate-800 w-full max-w-md p-8 space-y-6">
       <div class="text-center">
-        <div class="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center text-white text-2xl mx-auto shadow-md shadow-indigo-500/20 mb-3">
+        <div class="w-12 h-12 bg-gradient-to-tr from-indigo-600 to-indigo-500 rounded-2xl flex items-center justify-center text-white text-2xl mx-auto shadow-lg shadow-indigo-600/30 mb-3 ring-1 ring-white/20">
           📍
         </div>
-        <h3 class="text-xl font-bold text-slate-800">Sign in to Pin Finder</h3>
-        <p class="text-xs text-slate-500 mt-1">Internal Google Maps Lead Generation Software</p>
+        <h3 class="text-xl font-extrabold text-white tracking-tight">Sign in to Pin Finder</h3>
+        <p class="text-xs text-slate-400 mt-1">Internal Google Maps Lead Platform</p>
       </div>
 
       <form onsubmit="handleAuthSubmit(event)" class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Username or Email</label>
-          <input type="text" id="auth-username" required value="company_admin" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Username</label>
+          <input type="text" id="auth-username" required value="company_admin" class="w-full text-sm bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-indigo-500 transition">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Password</label>
-          <input type="password" id="auth-password" required value="SecurePassword123!" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Password</label>
+          <input type="password" id="auth-password" required value="SecurePassword123!" class="w-full text-sm bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-indigo-500 transition">
         </div>
-        <button type="submit" id="auth-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm py-2.5 rounded-lg shadow-sm transition">
+        <button type="submit" id="auth-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm py-2.5 rounded-xl shadow-lg shadow-indigo-600/25 transition">
           Sign In
         </button>
       </form>
@@ -454,17 +516,15 @@ curl -X POST "http://localhost:8000/api/v1/external/jobs" \
   </div>
 
   <!-- Toast Notification Container -->
-  <div id="toast-container" class="fixed bottom-5 right-5 space-y-2 z-50"></div>
+  <div id="toast-container" class="fixed bottom-5 right-5 space-y-2 z-50 pointer-events-none"></div>
 
   <!-- ==================== FRONTEND JAVASCRIPT ==================== -->
   <script>
-    // State management
     let currentView = 'dashboard';
     let currentFilter = 'all';
     let allLeads = [];
     let pollingInterval = null;
 
-    // API Helper
     function getAuthHeaders() {
       const token = localStorage.getItem('token');
       return {
@@ -476,14 +536,20 @@ curl -X POST "http://localhost:8000/api/v1/external/jobs" \
     function showToast(message, type = 'success') {
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
-      const bg = type === 'success' ? 'bg-slate-900 text-white' : 'bg-rose-600 text-white';
-      toast.className = `${bg} px-4 py-2.5 rounded-lg shadow-lg text-xs font-medium transition-all duration-300 flex items-center gap-2 transform translate-y-2`;
-      toast.innerHTML = `<span>${type === 'success' ? '✓' : '⚠️'}</span><span>${message}</span>`;
+      const bg = type === 'success' ? 'bg-slate-950/90 text-white border-slate-800' : 'bg-rose-950/90 text-rose-200 border-rose-800';
+      toast.className = `${bg} backdrop-blur-md px-4 py-2.5 rounded-xl shadow-2xl text-xs font-semibold border transition-all duration-300 flex items-center gap-2.5 pointer-events-auto transform translate-y-2`;
+      toast.innerHTML = `<span class="${type === 'success' ? 'text-emerald-400' : 'text-rose-400'}">${type === 'success' ? '✓' : '⚠️'}</span><span>${message}</span>`;
       container.appendChild(toast);
       setTimeout(() => {
         toast.classList.add('opacity-0', 'translate-y-4');
         setTimeout(() => toast.remove(), 300);
       }, 3500);
+    }
+
+    function copyToClipboard(text, label = 'Text') {
+      if (!text) return;
+      navigator.clipboard.writeText(text);
+      showToast(`${label} copied! 📋`, 'success');
     }
 
     // View Switching
@@ -495,9 +561,9 @@ curl -X POST "http://localhost:8000/api/v1/external/jobs" \
         if (el) el.classList.toggle('hidden', v !== viewName);
         if (nav) {
           if (v === viewName) {
-            nav.className = 'nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-white bg-slate-800/80 transition-colors';
+            nav.className = 'nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-white bg-indigo-600/90 shadow-sm shadow-indigo-600/30 transition-all';
           } else {
-            nav.className = 'nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors';
+            nav.className = 'nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-900 transition-all';
           }
         }
       });
@@ -515,6 +581,21 @@ curl -X POST "http://localhost:8000/api/v1/external/jobs" \
       if (viewName === 'activities') loadActivities();
       if (viewName === 'leads') loadLeads();
       if (viewName === 'settings') loadSettings();
+    }
+
+    // Skeletons
+    function renderTableSkeleton() {
+      const tbody = document.getElementById('leads-table-body');
+      tbody.innerHTML = Array(5).fill(0).map(() => `
+        <tr class="animate-pulse border-b border-slate-800/40">
+          <td class="px-4 py-3"><div class="h-4 bg-slate-800 rounded w-32 mb-1"></div><div class="h-3 bg-slate-800/60 rounded w-48"></div></td>
+          <td class="px-4 py-3"><div class="h-4 bg-slate-800 rounded w-24"></div></td>
+          <td class="px-4 py-3"><div class="h-4 bg-slate-800 rounded w-16"></div></td>
+          <td class="px-4 py-3"><div class="h-4 bg-slate-800 rounded w-28"></div></td>
+          <td class="px-4 py-3"><div class="h-4 bg-slate-800 rounded w-36"></div></td>
+          <td class="px-4 py-3 text-right"><div class="h-6 bg-slate-800 rounded w-20 ml-auto"></div></td>
+        </tr>
+      `).join('');
     }
 
     // Dashboard Loader
@@ -542,16 +623,16 @@ curl -X POST "http://localhost:8000/api/v1/external/jobs" \
     function renderRecentJobs(jobs) {
       const container = document.getElementById('dashboard-recent-jobs');
       if (!jobs || jobs.length === 0) {
-        container.innerHTML = `<p class="text-xs text-slate-400 py-4 text-center">No searches yet. Launch your first scrape!</p>`;
+        container.innerHTML = `<p class="text-xs text-slate-500 py-6 text-center">No searches yet. Launch your first scrape!</p>`;
         return;
       }
       container.innerHTML = jobs.map(j => `
         <div class="py-3 flex items-center justify-between">
           <div>
-            <p class="text-xs font-bold text-slate-800">${j.niche} in ${j.location}</p>
-            <p class="text-[11px] text-slate-500">${j.scraped_count} / ${j.target_count} leads collected • ${j.created_at}</p>
+            <p class="text-xs font-bold text-white">${j.niche} in ${j.location}</p>
+            <p class="text-[11px] text-slate-400">${j.scraped_count} / ${j.target_count} leads collected • ${j.created_at}</p>
           </div>
-          <span class="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full ${getStatusBadge(j.status)}">
+          <span class="text-[10px] font-semibold uppercase px-2.5 py-0.5 rounded-full ${getStatusBadge(j.status)}">
             ${j.status}
           </span>
         </div>
@@ -559,10 +640,10 @@ curl -X POST "http://localhost:8000/api/v1/external/jobs" \
     }
 
     function getStatusBadge(status) {
-      if (status === 'completed') return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
-      if (status === 'running') return 'bg-blue-50 text-blue-700 border border-blue-200 animate-pulse';
-      if (status === 'failed') return 'bg-rose-50 text-rose-700 border border-rose-200';
-      return 'bg-slate-100 text-slate-700';
+      if (status === 'completed') return 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+      if (status === 'running') return 'bg-blue-500/10 text-blue-400 border border-blue-500/20 animate-pulse';
+      if (status === 'failed') return 'bg-rose-500/10 text-rose-400 border border-rose-500/20';
+      return 'bg-slate-800 text-slate-300';
     }
 
     // Activities Loader
@@ -581,7 +662,7 @@ curl -X POST "http://localhost:8000/api/v1/external/jobs" \
     function renderActivities(jobs) {
       const container = document.getElementById('activities-job-list');
       if (!jobs || jobs.length === 0) {
-        container.innerHTML = `<p class="text-xs text-slate-400 py-8 text-center">No scraping tasks found.</p>`;
+        container.innerHTML = `<p class="text-xs text-slate-500 py-8 text-center">No scraping tasks found.</p>`;
         return;
       }
 
@@ -589,13 +670,13 @@ curl -X POST "http://localhost:8000/api/v1/external/jobs" \
         <div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div class="space-y-1">
             <div class="flex items-center gap-2">
-              <span class="text-xs font-bold text-slate-800">Task #${j.id}: ${j.niche}</span>
-              <span class="text-xs text-slate-500">📍 ${j.location}</span>
+              <span class="text-xs font-bold text-white">Task #${j.id}: ${j.niche}</span>
+              <span class="text-xs text-slate-400">📍 ${j.location}</span>
             </div>
-            <p class="text-[11px] text-slate-500">Target: ${j.target_count} leads • Created: ${j.created_at}</p>
+            <p class="text-[11px] text-slate-400">Target: ${j.target_count} leads • Created: ${j.created_at}</p>
             ${j.status === 'running' ? `
-              <div class="w-64 bg-slate-100 rounded-full h-2 mt-2 overflow-hidden border border-slate-200">
-                <div class="bg-indigo-600 h-2 rounded-full transition-all duration-500" style="width: ${j.progress_pct}%"></div>
+              <div class="w-64 bg-slate-900 rounded-full h-2 mt-2 overflow-hidden border border-slate-800">
+                <div class="bg-indigo-500 h-2 rounded-full transition-all duration-500" style="width: ${j.progress_pct}%"></div>
               </div>
             ` : ''}
           </div>
@@ -604,7 +685,7 @@ curl -X POST "http://localhost:8000/api/v1/external/jobs" \
             <span class="text-xs font-semibold px-2.5 py-1 rounded-full ${getStatusBadge(j.status)}">
               ${j.status === 'running' ? `Running (${j.progress_pct}%)` : j.status}
             </span>
-            <button onclick="viewJobLeads(${j.id})" class="text-xs font-medium text-indigo-600 hover:text-indigo-800 bg-indigo-50 border border-indigo-200 px-3 py-1.5 rounded-lg transition">
+            <button onclick="viewJobLeads(${j.id})" class="text-xs font-semibold text-indigo-300 hover:text-white bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 px-3.5 py-1.5 rounded-xl transition">
               View Leads (${j.scraped_count})
             </button>
           </div>
@@ -614,6 +695,7 @@ curl -X POST "http://localhost:8000/api/v1/external/jobs" \
 
     // Leads Library Loader
     async function loadLeads(jobId = null) {
+      renderTableSkeleton();
       try {
         let url = `/api/v1/leads?limit=300`;
         if (jobId) url = `/api/v1/jobs/${jobId}/leads`;
@@ -633,7 +715,7 @@ curl -X POST "http://localhost:8000/api/v1/external/jobs" \
     function renderLeadsTable(leads) {
       const tbody = document.getElementById('leads-table-body');
       if (!leads || leads.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-8 text-center text-slate-400">No leads found in this view.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-8 text-center text-slate-500">No leads found in this view.</td></tr>`;
         return;
       }
 
@@ -644,54 +726,64 @@ curl -X POST "http://localhost:8000/api/v1/external/jobs" \
         const socials = l.socials || {};
 
         return `
-          <tr class="hover:bg-slate-50/80 transition" id="lead-row-${l.id}">
+          <tr class="hover:bg-slate-900/60 transition group cursor-pointer" onclick="openLeadDrawer(${l.id})">
             <td class="px-4 py-3">
-              <p class="font-bold text-slate-900">${l.title}</p>
-              <p class="text-[11px] text-slate-500 truncate max-w-xs">${l.address || 'Address unlisted'}</p>
-              <span class="text-[10px] text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded font-medium">${l.category || 'Business'}</span>
+              <p class="font-bold text-white group-hover:text-indigo-400 transition">${l.title}</p>
+              <p class="text-[11px] text-slate-400 truncate max-w-xs">${l.address || 'Address unlisted'}</p>
+              <span class="text-[9px] font-mono text-indigo-300 bg-indigo-500/10 px-1.5 py-0.5 rounded font-semibold border border-indigo-500/20">${l.category || 'Business'}</span>
             </td>
-            <td class="px-4 py-3">
-              <span class="font-mono text-slate-700">${l.phone || 'No Phone'}</span>
+            <td class="px-4 py-3" onclick="event.stopPropagation()">
+              ${l.phone ? `
+                <button onclick="copyToClipboard('${l.phone}', 'Phone')" title="Click to copy" class="font-mono text-slate-300 hover:text-indigo-400 flex items-center gap-1.5">
+                  ${l.phone}
+                  <span class="text-[10px] text-slate-500 hover:text-slate-300">📋</span>
+                </button>
+              ` : `<span class="text-slate-500 italic">No Phone</span>`}
             </td>
             <td class="px-4 py-3">
               <div class="flex items-center gap-1">
-                <span class="font-bold text-slate-800">${l.rating || 'N/A'}</span>
-                <span class="text-amber-500">★</span>
-                <span class="text-[10px] text-slate-400">(${l.reviews_count || 0})</span>
+                <span class="font-bold text-white">${l.rating || 'N/A'}</span>
+                <span class="text-amber-400">★</span>
+                <span class="text-[10px] text-slate-500">(${l.reviews_count || 0})</span>
               </div>
             </td>
-            <td class="px-4 py-3">
+            <td class="px-4 py-3" onclick="event.stopPropagation()">
               ${hasWeb ? `
-                <a href="${l.website}" target="_blank" class="text-indigo-600 hover:underline flex items-center gap-1 font-medium truncate max-w-[180px]">
+                <a href="${l.website}" target="_blank" class="text-indigo-400 hover:underline flex items-center gap-1 font-medium truncate max-w-[180px]">
                   ${l.website.replace('https://','').replace('http://','').replace('www.','').split('/')[0]}
                   <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                 </a>
               ` : `
-                <span class="text-[11px] text-slate-400 italic">No Website</span>
+                <span class="text-[11px] text-slate-500 italic">No Website</span>
               `}
-              <div class="flex items-center gap-1.5 mt-1 text-slate-400">
-                ${socials.facebook ? `<a href="${socials.facebook}" target="_blank" class="text-blue-600 hover:underline text-[10px]">FB</a>` : ''}
-                ${socials.instagram ? `<a href="${socials.instagram}" target="_blank" class="text-pink-600 hover:underline text-[10px]">IG</a>` : ''}
-                ${socials.linkedin ? `<a href="${socials.linkedin}" target="_blank" class="text-blue-700 hover:underline text-[10px]">LI</a>` : ''}
-                ${socials.twitter ? `<a href="${socials.twitter}" target="_blank" class="text-slate-800 hover:underline text-[10px]">X</a>` : ''}
+              <div class="flex items-center gap-2 mt-1 text-slate-400">
+                ${socials.facebook ? `<a href="${socials.facebook}" target="_blank" class="text-blue-400 hover:text-blue-300 text-[10px] font-bold">FB</a>` : ''}
+                ${socials.instagram ? `<a href="${socials.instagram}" target="_blank" class="text-pink-400 hover:text-pink-300 text-[10px] font-bold">IG</a>` : ''}
+                ${socials.linkedin ? `<a href="${socials.linkedin}" target="_blank" class="text-blue-500 hover:text-blue-400 text-[10px] font-bold">LI</a>` : ''}
+                ${socials.twitter ? `<a href="${socials.twitter}" target="_blank" class="text-slate-300 hover:text-white text-[10px] font-bold">X</a>` : ''}
               </div>
             </td>
-            <td class="px-4 py-3">
+            <td class="px-4 py-3" onclick="event.stopPropagation()">
               ${emails.length > 0 ? `
                 <div class="flex flex-col gap-1">
-                  ${emails.map(e => `<span class="bg-emerald-50 text-emerald-800 font-mono text-[10px] px-2 py-0.5 rounded border border-emerald-200">${e}</span>`).join('')}
+                  ${emails.map(e => `
+                    <button onclick="copyToClipboard('${e}', 'Email')" title="Click to copy" class="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 font-mono text-[10px] px-2 py-0.5 rounded border border-emerald-500/20 truncate max-w-[190px] text-left flex items-center justify-between">
+                      <span>${e}</span>
+                      <span class="text-[9px] text-emerald-500">📋</span>
+                    </button>
+                  `).join('')}
                 </div>
               ` : `
-                <span class="text-[11px] text-slate-400 italic">None</span>
+                <span class="text-[11px] text-slate-500 italic">None</span>
               `}
             </td>
-            <td class="px-4 py-3 text-right">
+            <td class="px-4 py-3 text-right" onclick="event.stopPropagation()">
               ${!hasWeb ? `
-                <span class="text-[11px] text-slate-400 font-medium px-2.5 py-1 rounded bg-slate-100">No Website</span>
+                <span class="text-[10px] font-semibold text-slate-500 px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800">No Website</span>
               ` : isEnriched ? `
-                <span class="text-[11px] text-emerald-700 font-semibold px-2.5 py-1 rounded bg-emerald-50 border border-emerald-200">✓ Enriched</span>
+                <span class="text-[10px] font-semibold text-emerald-400 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30">✓ Enriched</span>
               ` : `
-                <button onclick="enrichSingleLead(${l.id})" id="btn-enrich-${l.id}" class="bg-white hover:bg-indigo-50 text-indigo-700 border border-indigo-200 text-[11px] font-semibold px-2.5 py-1 rounded shadow-sm transition">
+                <button onclick="enrichSingleLead(${l.id})" id="btn-enrich-${l.id}" class="bg-slate-900 hover:bg-indigo-600 text-indigo-300 hover:text-white border border-indigo-500/30 text-[11px] font-semibold px-3 py-1 rounded-xl shadow transition">
                   🔍 Find Email
                 </button>
               `}
@@ -699,6 +791,83 @@ curl -X POST "http://localhost:8000/api/v1/external/jobs" \
           </tr>
         `;
       }).join('');
+    }
+
+    // Lead Detail Drawer
+    function openLeadDrawer(leadId) {
+      const lead = allLeads.find(l => l.id === leadId);
+      if (!lead) return;
+
+      document.getElementById('drawer-title').innerText = lead.title;
+      document.getElementById('drawer-category').innerText = lead.category || 'Business';
+
+      const content = document.getElementById('drawer-content');
+      content.innerHTML = `
+        <div class="space-y-4">
+          <div>
+            <span class="text-[10px] uppercase font-bold text-slate-400">Direct Phone Number</span>
+            <div class="mt-1 flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800">
+              <span class="font-mono font-bold text-white text-sm">${lead.phone || 'Unlisted'}</span>
+              ${lead.phone ? `<button onclick="copyToClipboard('${lead.phone}', 'Phone')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg">Copy 📋</button>` : ''}
+            </div>
+          </div>
+
+          <div>
+            <span class="text-[10px] uppercase font-bold text-slate-400">Physical Address</span>
+            <div class="mt-1 p-3 rounded-xl bg-slate-900 border border-slate-800">
+              <p class="text-xs text-slate-200">${lead.address || 'Address unlisted'}</p>
+            </div>
+          </div>
+
+          <div>
+            <span class="text-[10px] uppercase font-bold text-slate-400">Website & Maps Link</span>
+            <div class="mt-1 p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+              ${lead.website ? `
+                <div class="flex items-center justify-between">
+                  <a href="${lead.website}" target="_blank" class="text-indigo-400 hover:underline truncate max-w-xs">${lead.website}</a>
+                  <button onclick="copyToClipboard('${lead.website}', 'Website')" class="text-xs text-slate-400 hover:text-white">Copy 📋</button>
+                </div>
+              ` : '<p class="text-slate-500 italic">No Website</p>'}
+              ${lead.maps_url ? `
+                <div class="pt-2 border-t border-slate-800 flex items-center justify-between">
+                  <a href="${lead.maps_url}" target="_blank" class="text-indigo-400 hover:underline">Open in Google Maps 📍</a>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+
+          <div>
+            <span class="text-[10px] uppercase font-bold text-slate-400">Verified Email Addresses</span>
+            <div class="mt-1 p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
+              ${(lead.emails && lead.emails.length > 0) ? lead.emails.map(e => `
+                <div class="flex items-center justify-between">
+                  <span class="font-mono text-emerald-400 font-semibold">${e}</span>
+                  <button onclick="copyToClipboard('${e}', 'Email')" class="text-xs text-slate-400 hover:text-white">Copy 📋</button>
+                </div>
+              `).join('') : '<p class="text-slate-500 italic">No email found yet. Click "Find Email" to scan.</p>'}
+            </div>
+          </div>
+
+          <div>
+            <span class="text-[10px] uppercase font-bold text-slate-400">Social Media Profiles</span>
+            <div class="mt-1 p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center gap-3">
+              ${lead.socials?.facebook ? `<a href="${lead.socials.facebook}" target="_blank" class="text-xs bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2.5 py-1 rounded-lg">Facebook</a>` : ''}
+              ${lead.socials?.instagram ? `<a href="${lead.socials.instagram}" target="_blank" class="text-xs bg-pink-500/20 text-pink-400 border border-pink-500/30 px-2.5 py-1 rounded-lg">Instagram</a>` : ''}
+              ${lead.socials?.linkedin ? `<a href="${lead.socials.linkedin}" target="_blank" class="text-xs bg-blue-600/20 text-blue-300 border border-blue-600/30 px-2.5 py-1 rounded-lg">LinkedIn</a>` : ''}
+              ${lead.socials?.twitter ? `<a href="${lead.socials.twitter}" target="_blank" class="text-xs bg-slate-800 text-slate-300 border border-slate-700 px-2.5 py-1 rounded-lg">Twitter</a>` : ''}
+              ${(!lead.socials || Object.keys(lead.socials).length === 0) ? '<p class="text-slate-500 italic">No social media links detected.</p>' : ''}
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('lead-drawer').classList.remove('translate-x-full');
+      document.getElementById('drawer-backdrop').classList.remove('hidden');
+    }
+
+    function closeLeadDrawer() {
+      document.getElementById('lead-drawer').classList.add('translate-x-full');
+      document.getElementById('drawer-backdrop').classList.add('hidden');
     }
 
     function setLeadFilter(filter) {
@@ -709,7 +878,7 @@ curl -X POST "http://localhost:8000/api/v1/external/jobs" \
           if (f === filter) {
             btn.className = 'px-3.5 py-1.5 rounded-lg bg-indigo-600 text-white transition';
           } else {
-            btn.className = 'px-3.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition';
+            btn.className = 'px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition';
           }
         }
       });
@@ -731,7 +900,6 @@ curl -X POST "http://localhost:8000/api/v1/external/jobs" \
       renderLeadsTable(filtered);
     }
 
-    // On-Demand Single Lead Enrichment
     async function enrichSingleLead(leadId) {
       const btn = document.getElementById(`btn-enrich-${leadId}`);
       if (btn) {
@@ -746,7 +914,6 @@ curl -X POST "http://localhost:8000/api/v1/external/jobs" \
         if (res.ok) {
           const data = await res.json();
           showToast(`Enriched ${data.lead.title}!`, 'success');
-          // Reload leads table to reflect discovered emails and socials
           loadLeads();
         } else {
           showToast('Enrichment failed', 'error');
@@ -756,11 +923,9 @@ curl -X POST "http://localhost:8000/api/v1/external/jobs" \
       }
     }
 
-    // On-Demand Bulk Enrichment
     async function triggerBulkEnrichment() {
       showToast('Starting bulk enrichment for all leads with websites...', 'success');
       try {
-        // Find latest job or enrich all
         const res = await fetch('/api/v1/jobs?limit=1', { headers: getAuthHeaders() });
         if (res.ok) {
           const data = await res.json();
@@ -776,7 +941,6 @@ curl -X POST "http://localhost:8000/api/v1/external/jobs" \
       }
     }
 
-    // Scrape Submission
     async function submitQuickScrape() {
       const niche = document.getElementById('quick-niche').value.trim();
       const location = document.getElementById('quick-location').value.trim();
@@ -844,21 +1008,21 @@ curl -X POST "http://localhost:8000/api/v1/external/jobs" \
     function renderApiKeys(keys) {
       const tbody = document.getElementById('api-keys-table-body');
       if (!keys || keys.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-4 text-center text-slate-400">No API keys created yet. Click "+ Generate New API Key" above.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-4 text-center text-slate-500">No API keys created yet. Click "+ Generate New API Key" above.</td></tr>`;
         return;
       }
       tbody.innerHTML = keys.map(k => `
-        <tr class="hover:bg-slate-50">
-          <td class="px-4 py-2.5 font-bold text-slate-800">${k.name}</td>
-          <td class="px-4 py-2.5 font-mono text-slate-600">${k.masked}</td>
-          <td class="px-4 py-2.5 text-slate-500">${k.created_at}</td>
+        <tr class="hover:bg-slate-900/60 transition">
+          <td class="px-4 py-2.5 font-bold text-white">${k.name}</td>
+          <td class="px-4 py-2.5 font-mono text-indigo-300">${k.masked}</td>
+          <td class="px-4 py-2.5 text-slate-400">${k.created_at}</td>
           <td class="px-4 py-2.5">
-            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${k.is_active ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}">
+            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${k.is_active ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}">
               ${k.is_active ? 'Active' : 'Revoked'}
             </span>
           </td>
           <td class="px-4 py-2.5 text-right">
-            ${k.is_active ? `<button onclick="revokeKey(${k.id})" class="text-[11px] text-rose-600 hover:text-rose-800 font-semibold">Revoke</button>` : `<span class="text-slate-400 italic">Inactive</span>`}
+            ${k.is_active ? `<button onclick="revokeKey(${k.id})" class="text-[11px] text-rose-400 hover:text-rose-300 font-semibold">Revoke</button>` : `<span class="text-slate-500 italic">Inactive</span>`}
           </td>
         </tr>
       `).join('');
@@ -908,7 +1072,7 @@ curl -X POST "http://localhost:8000/api/v1/external/jobs" \
       const input = document.getElementById('new-key-value');
       input.select();
       navigator.clipboard.writeText(input.value);
-      showToast("API Key copied to clipboard! 📋", "success");
+      showToast("API Key copied! 📋", "success");
     }
 
     async function loadWebhookConfig() {
