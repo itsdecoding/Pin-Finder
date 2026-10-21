@@ -2,12 +2,14 @@ import asyncio
 import io
 import csv
 import logging
+import os
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, Depends, Header, BackgroundTasks, Query, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from database import (
@@ -302,3 +304,8 @@ def export_leads_csv(job_id: Optional[int] = None, filter_type: Optional[str] = 
         media_type="text/csv",
         headers={"Content-Disposition": f"attachment; filename={filename}"}
     )
+
+# --- MOUNT FRONTEND WEB APPLICATION ---
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+if os.path.exists(static_dir):
+    app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
