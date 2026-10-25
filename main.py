@@ -17,7 +17,8 @@ from database import (
     init_db, create_job, update_job_progress, get_job, list_jobs,
     insert_leads, get_lead, update_lead_enrichment, list_leads, get_connection,
     create_api_key, list_api_keys, revoke_api_key, validate_api_key,
-    get_webhook_config, save_webhook_config
+    get_webhook_config, save_webhook_config,
+    get_proxy_config, save_proxy_config
 )
 from auth import (
     register_user, authenticate_user, create_access_token, decode_token
@@ -72,6 +73,10 @@ class ApiKeyCreateRequest(BaseModel):
 class WebhookConfigRequest(BaseModel):
     webhook_url: str = Field(..., example="https://services.leadconnectorhq.com/hooks/...")
     auto_push: bool = Field(True, example=True)
+
+class ProxyConfigRequest(BaseModel):
+    proxy_url: str = Field("", example="http://username:password@proxy.webshare.io:80")
+    proxy_enabled: bool = Field(False, example=True)
 
 class ExternalJobRequest(BaseModel):
     niche: str = Field(..., example="Dentists")
@@ -129,7 +134,11 @@ async def run_scraper_task(job_id: int, niche: str, location: str, target_count:
     try:
         update_job_progress(job_id, status="running", progress_pct=15)
         
-        scraper = GoogleMapsScraper(headless=True)
+        # Load active proxy configuration
+        proxy_cfg = get_proxy_config()
+        active_proxy = proxy_cfg["proxy_url"] if proxy_cfg.get("proxy_enabled") else None
+
+        scraper = GoogleMapsScraper(headless=True, proxy=active_proxy)
         leads = await scraper.scrape(niche=niche, location=location, limit=target_count)
 
         update_job_progress(job_id, status="running", progress_pct=85, scraped_count=len(leads))
@@ -439,6 +448,41 @@ async def test_webhook_dispatch():
             }
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Failed to connect to webhook URL: {str(e)}")
+
+# --- PROXY CONFIGURATION ENDPOINTS ---
+@app.get("/api/v1/integrations/proxy", tags=["Integrations"])
+def get_proxy():
+    return get_proxy_config()
+
+@app.post("/api/v1/integrations/proxy", tags=["Integrations"])
+def update_proxy(req: ProxyConfigRequest):
+    save_proxy_config(req.proxy_url, req.proxy_enabled)
+    return {"message": "Proxy configuration saved successfully", "config": req}
+
+@app.post("/api/v1/integrations/proxy/test", tags=["Integrations"])
+async def test_proxy_connection():
+    cfg = get_proxy_config()
+    proxy_url = cfg.get("proxy_url", "").strip() if cfg.get("proxy_enabled") else ""
+    
+    try:
+        transport_kwargs = {}
+        if proxy_url:
+            transport_kwargs["proxy"] = proxy_url
+            
+        async with httpx.AsyncClient(timeout=10.0, **transport_kwargs) as client:
+            resp = await client.get("https://api.ipify.org?format=json")
+            if resp.status_code == 200:
+                ip_data = resp.json()
+                return {
+                    "success": True,
+                    "outgoing_ip": ip_data.get("ip"),
+                    "proxy_active": bool(proxy_url),
+                    "message": f"Outgoing IP verified: {ip_data.get('ip')}"
+                }
+            else:
+                raise HTTPException(status_code=502, detail=f"IP test returned HTTP {resp.status_code}")
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Proxy test failed: {str(e)}")
 
 # --- INBOUND EXTERNAL API (REMOTE CONTROL FROM CRM / ZAPIER) ---
 @app.post("/api/v1/external/jobs", tags=["External Inbound API"])

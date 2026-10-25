@@ -335,3 +335,12 @@ def save_webhook_config(url: str, auto_push: bool, db_path: str = DB_PATH):
     set_setting("crm_webhook_url", url.strip(), db_path)
     set_setting("crm_auto_push", "true" if auto_push else "false", db_path)
 
+def get_proxy_config(db_path: str = DB_PATH) -> Dict[str, Any]:
+    url = get_setting("proxy_url", "", db_path)
+    enabled = get_setting("proxy_enabled", "false", db_path) == "true"
+    return {"proxy_url": url, "proxy_enabled": enabled}
+
+def save_proxy_config(url: str, enabled: bool, db_path: str = DB_PATH):
+    set_setting("proxy_url", url.strip(), db_path)
+    set_setting("proxy_enabled", "true" if enabled else "false", db_path)
+
