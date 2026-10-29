@@ -1,6 +1,7 @@
 import asyncio
 import json
 import logging
+import math
 import re
 import urllib.parse
 from typing import List, Dict, Any, Optional
@@ -10,6 +11,79 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - [%(levelname)s] - 
 logger = logging.getLogger("PinFinder")
 
 PHONE_REGEX = re.compile(r"(\+?\d{1,3}[\s\-\.]?)?(\(?\d{2,4}\)?[\s\-\.]?)?\d{3,4}[\s\-\.]?\d{3,4}")
+
+def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Calculate the great circle distance in kilometers between two points."""
+    R = 6371.0 # Earth's radius in km
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = math.sin(dlat / 2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return R * c
+
+def extract_coords_from_url(url: str) -> Optional[tuple[float, float]]:
+    """Extract (lat, lng) from Google Maps URL if present."""
+    if not url:
+        return None
+    m = re.search(r"!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)", url)
+    if m:
+        return (float(m.group(1)), float(m.group(2)))
+    m = re.search(r"@(-?\d+\.\d+),(-?\d+\.\d+)", url)
+    if m:
+        return (float(m.group(1)), float(m.group(2)))
+    return None
+
+def is_locality_match(
+    item: Dict[str, Any],
+    card_text: str,
+    strict_locality: Optional[str] = None,
+    target_coords: Optional[tuple[float, float]] = None,
+    max_radius_km: Optional[float] = None
+) -> tuple[bool, str]:
+    """
+    Check if a scraped listing belongs strictly to the requested micro-locality.
+    Returns (is_match, reason).
+    """
+    if not strict_locality and (max_radius_km is None or max_radius_km <= 0):
+        return True, "No locality filter applied"
+
+    strict_lower = strict_locality.lower().strip() if strict_locality else ""
+    
+    # Common alternate spellings
+    variants = set()
+    if strict_lower:
+        variants.add(strict_lower)
+        if "sayyed" in strict_lower:
+            variants.add(strict_lower.replace("sayyed", "sayed"))
+            variants.add(strict_lower.replace("sayyed", "sayyad"))
+        elif "sayed" in strict_lower:
+            variants.add(strict_lower.replace("sayed", "sayyed"))
+            variants.add(strict_lower.replace("sayed", "sayyad"))
+
+    address_lower = (item.get("address") or "").lower()
+    title_lower = (item.get("title") or "").lower()
+    card_lower = card_text.lower()
+
+    # 1. Direct text match in address, title, or card snippet
+    if variants:
+        for v in variants:
+            if v in address_lower or v in title_lower or v in card_lower:
+                return True, f"Keyword match: '{v}' in listing"
+
+    # 2. Geofence radius check if coordinates are present
+    coords = extract_coords_from_url(item.get("maps_url", ""))
+    if coords and target_coords and max_radius_km is not None and max_radius_km > 0:
+        dist = haversine_distance(target_coords[0], target_coords[1], coords[0], coords[1])
+        if dist <= max_radius_km:
+            return True, f"Within {dist:.2f} km of target (max: {max_radius_km} km)"
+        else:
+            return False, f"Out of radius: {dist:.2f} km > {max_radius_km} km limit"
+
+    # If strict locality was requested and neither text nor geofence matched, reject
+    if strict_locality:
+        return False, f"Address '{item.get('address') or 'N/A'}' does not match locality '{strict_locality}'"
+
+    return True, "Locality verification passed"
 
 class GoogleMapsScraper:
     def __init__(self, headless: bool = True, proxy: Optional[str] = None):
@@ -181,13 +255,32 @@ class GoogleMapsScraper:
 
         return item
 
-    async def scrape(self, niche: str, location: str, limit: int = 10) -> List[Dict[str, Any]]:
-        query = f"{niche} in {location}"
+    async def scrape(
+        self,
+        niche: str,
+        location: str,
+        limit: int = 10,
+        strict_locality: Optional[str] = None,
+        max_radius_km: Optional[float] = None
+    ) -> List[Dict[str, Any]]:
+        # Formulate search query with phrase emphasis if strict locality specified
+        if strict_locality and strict_locality.lower() not in location.lower():
+            query = f'{niche} in "{strict_locality}", {location}'
+        elif strict_locality and f'"{strict_locality}"' not in location:
+            # Wrap the strict locality in quotes for Google Maps ranking
+            pattern = re.compile(re.escape(strict_locality), re.IGNORECASE)
+            quoted_location = pattern.sub(f'"{strict_locality}"', location, count=1)
+            query = f"{niche} in {quoted_location}"
+        else:
+            query = f"{niche} in {location}"
+
         encoded_query = urllib.parse.quote(query)
         search_url = f"https://www.google.com/maps/search/{encoded_query}"
 
         proxy_config = self._parse_proxy()
         logger.info(f"Starting Single-Page Stream Scrape: '{query}' (Target: {limit})")
+        if strict_locality:
+            logger.info(f"Strict Micro-Locality Filter Active: '{strict_locality}' | Max Radius: {max_radius_km or 'strict'} km")
         if proxy_config:
             logger.info(f"Using Proxy: {proxy_config.get('server')}")
         else:
@@ -233,6 +326,11 @@ class GoogleMapsScraper:
                 await page.wait_for_timeout(2500)
                 await self._check_captcha(page)
 
+                # Attempt to extract target centroid coordinates from resolved URL
+                target_coords = extract_coords_from_url(page.url)
+                if target_coords:
+                    logger.info(f"Target Centroid Coordinates Resolved: {target_coords}")
+
                 feed_selector = "div[role='feed']"
                 try:
                     await page.wait_for_selector(feed_selector, timeout=8000)
@@ -240,8 +338,11 @@ class GoogleMapsScraper:
                 except Exception:
                     has_feed = False
 
+                evaluated_titles = set()
                 scroll_attempts = 0
-                max_scroll_attempts = 20
+                max_scroll_attempts = 10
+                prev_card_count = 0
+                no_new_cards_count = 0
 
                 # 2. Scroll the feed and parse cards directly from the single page
                 while len(results) < limit and scroll_attempts < max_scroll_attempts:
@@ -250,14 +351,59 @@ class GoogleMapsScraper:
                     for card in cards:
                         if len(results) >= limit:
                             break
+
+                        # Quick title check before deep extraction to prevent duplicate processing
+                        title_el = card.locator(".qBF1Pd, a.hfpxzc").first
+                        temp_title = ""
+                        if await title_el.count() > 0:
+                            temp_title = (await title_el.inner_text() or await title_el.get_attribute("aria-label") or "").strip()
+                        
+                        if temp_title and temp_title in evaluated_titles:
+                            continue
+                        if temp_title:
+                            evaluated_titles.add(temp_title)
+
+                        card_text = await card.inner_text()
                         item = await self._extract_card_info(card, page)
-                        if item["title"] and item["title"] not in seen_titles:
+                        
+                        if not item["title"]:
+                            continue
+
+                        # Strict Micro-Locality Filter Check
+                        is_match, reason = is_locality_match(
+                            item=item,
+                            card_text=card_text,
+                            strict_locality=strict_locality,
+                            target_coords=target_coords,
+                            max_radius_km=max_radius_km
+                        )
+
+                        if not is_match:
+                            logger.info(f"  [SKIPPED OUT-OF-BOUNDS] '{item['title']}': {reason}")
+                            continue
+
+                        if item["title"] not in seen_titles:
                             seen_titles.add(item["title"])
                             results.append(item)
-                            logger.info(f"[{len(results)}/{limit}] Extracted: {item['title']} | Phone: {item['phone']} | Web: {bool(item['website'])}")
+                            logger.info(f"[{len(results)}/{limit}] Extracted (Matched Locality): {item['title']} | Phone: {item['phone']} | Web: {bool(item['website'])}")
 
                     if len(results) >= limit:
                         break
+
+                    # Check if reached the end of Google Maps listings
+                    end_marker = page.locator("text=\"You've reached the end of the list\"").first
+                    if await end_marker.is_visible(timeout=400):
+                        logger.info("Reached the end of Google Maps feed.")
+                        break
+
+                    if len(cards) == prev_card_count:
+                        no_new_cards_count += 1
+                        if no_new_cards_count >= 3:
+                            logger.info("No new cards loading after 3 scroll attempts. Completing scan.")
+                            break
+                    else:
+                        no_new_cards_count = 0
+                    prev_card_count = len(cards)
 
                     # Smooth humanized scroll
                     if has_feed:

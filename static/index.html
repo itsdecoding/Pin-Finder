@@ -289,6 +289,37 @@
             </div>
           </div>
 
+          <!-- Hyper-Local Micro-Locality Precision Filter -->
+          <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <label for="form-strict-filter-check" class="text-xs font-semibold text-white flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" id="form-strict-filter-check" onchange="toggleStrictFilterFields()" class="rounded bg-slate-950 border-slate-700 text-indigo-600 focus:ring-indigo-500 h-4 w-4">
+                  <span>Enforce Strict Micro-Locality Boundary</span>
+                </label>
+                <p class="text-[11px] text-slate-400 mt-0.5">Strictly filters out listings outside your target neighborhood (e.g. Sayyed Nagar only, rejecting broader Hadapsar).</p>
+              </div>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-semibold">Anti-Spill</span>
+            </div>
+
+            <div id="strict-filter-fields" class="space-y-3 pt-2 border-t border-slate-800 hidden">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-300 uppercase mb-1">Target Neighborhood / Locality</label>
+                <input type="text" id="form-strict-locality" placeholder="e.g. Sayyed Nagar (Leave blank to auto-detect from location)" class="w-full text-xs bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-300 uppercase mb-1">Maximum Allowed Radius</label>
+                <select id="form-max-radius" class="w-full text-xs bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500 transition">
+                  <option value="0">Strict Keyword Match Only (Zero Tolerance)</option>
+                  <option value="0.5">500 meters (0.5 km) - Walking Distance</option>
+                  <option value="1.0" selected>1.0 km - Tight Micro-Neighborhood</option>
+                  <option value="2.0">2.0 km - Local Perimeter</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
           <div class="pt-4 border-t border-slate-800/80 flex items-center justify-end gap-3">
             <button type="button" onclick="switchView('dashboard')" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-lg">Cancel</button>
             <button type="submit" id="btn-submit-scrape" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-6 py-2.5 rounded-xl shadow-lg shadow-indigo-600/30 transition flex items-center gap-2">
@@ -988,20 +1019,52 @@ curl -X POST "http://localhost:8000/api/v1/external/jobs" \
       await launchScrape(niche, location, count);
     }
 
+    function toggleStrictFilterFields() {
+      const isChecked = document.getElementById('form-strict-filter-check').checked;
+      const fields = document.getElementById('strict-filter-fields');
+      if (isChecked) {
+        fields.classList.remove('hidden');
+        const loc = document.getElementById('form-location').value.trim();
+        const strictLocInput = document.getElementById('form-strict-locality');
+        if (!strictLocInput.value && loc) {
+          const parts = loc.split(',');
+          strictLocInput.value = parts[0].trim();
+        }
+      } else {
+        fields.classList.add('hidden');
+      }
+    }
+
     async function handleNewScrapeSubmit(e) {
       e.preventDefault();
       const niche = document.getElementById('form-niche').value.trim();
       const location = document.getElementById('form-location').value.trim();
       const count = parseInt(document.querySelector('input[name="target_count"]:checked').value, 10);
-      await launchScrape(niche, location, count);
+      
+      const strictFilterChecked = document.getElementById('form-strict-filter-check')?.checked;
+      let strict_locality = null;
+      let max_radius_km = null;
+
+      if (strictFilterChecked) {
+        const customLocality = document.getElementById('form-strict-locality').value.trim();
+        strict_locality = customLocality || location.split(',')[0].trim();
+        const radVal = parseFloat(document.getElementById('form-max-radius').value);
+        max_radius_km = radVal > 0 ? radVal : null;
+      }
+
+      await launchScrape(niche, location, count, strict_locality, max_radius_km);
     }
 
-    async function launchScrape(niche, location, target_count) {
+    async function launchScrape(niche, location, target_count, strict_locality = null, max_radius_km = null) {
       try {
+        const payload = { niche, location, target_count };
+        if (strict_locality) payload.strict_locality = strict_locality;
+        if (max_radius_km !== null) payload.max_radius_km = max_radius_km;
+
         const res = await fetch('/api/v1/jobs', {
           method: 'POST',
           headers: getAuthHeaders(),
-          body: JSON.stringify({ niche, location, target_count })
+          body: JSON.stringify(payload)
         });
         if (res.ok) {
           showToast(`Started scraping for "${niche}" in ${location}!`, 'success');

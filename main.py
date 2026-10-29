@@ -66,6 +66,8 @@ class JobCreateRequest(BaseModel):
     niche: str = Field(..., example="Dentists")
     location: str = Field(..., example="Miami, FL")
     target_count: int = Field(10, ge=1, le=500, example=10)
+    strict_locality: Optional[str] = Field(None, example="Sayyed Nagar")
+    max_radius_km: Optional[float] = Field(None, example=1.0)
 
 class ApiKeyCreateRequest(BaseModel):
     name: str = Field("CRM Integration Key", example="GoHighLevel Key")
@@ -82,6 +84,8 @@ class ExternalJobRequest(BaseModel):
     niche: str = Field(..., example="Dentists")
     location: str = Field(..., example="Miami, FL")
     target_count: int = Field(10, ge=1, le=500, example=10)
+    strict_locality: Optional[str] = Field(None, example="Sayyed Nagar")
+    max_radius_km: Optional[float] = Field(None, example=1.0)
     webhook_url: Optional[str] = Field(None, example="https://webhook.site/...")
 
 # --- AUTH DEPENDENCIES ---
@@ -129,8 +133,16 @@ async def dispatch_webhook(event: str, data: Dict[str, Any], custom_url: Optiona
         logger.warning(f"Failed to dispatch webhook to {target_url}: {e}")
 
 # --- BACKGROUND SCRAPING WORKER ---
-async def run_scraper_task(job_id: int, niche: str, location: str, target_count: int, custom_webhook: Optional[str] = None):
-    logger.info(f"Background worker started for Job #{job_id}: {niche} in {location}")
+async def run_scraper_task(
+    job_id: int,
+    niche: str,
+    location: str,
+    target_count: int,
+    strict_locality: Optional[str] = None,
+    max_radius_km: Optional[float] = None,
+    custom_webhook: Optional[str] = None
+):
+    logger.info(f"Background worker started for Job #{job_id}: {niche} in {location} (Strict: {strict_locality}, Radius: {max_radius_km})")
     try:
         update_job_progress(job_id, status="running", progress_pct=15)
         
@@ -139,7 +151,13 @@ async def run_scraper_task(job_id: int, niche: str, location: str, target_count:
         active_proxy = proxy_cfg["proxy_url"] if proxy_cfg.get("proxy_enabled") else None
 
         scraper = GoogleMapsScraper(headless=True, proxy=active_proxy)
-        leads = await scraper.scrape(niche=niche, location=location, limit=target_count)
+        leads = await scraper.scrape(
+            niche=niche,
+            location=location,
+            limit=target_count,
+            strict_locality=strict_locality,
+            max_radius_km=max_radius_km
+        )
 
         update_job_progress(job_id, status="running", progress_pct=85, scraped_count=len(leads))
 
@@ -229,16 +247,18 @@ def get_stats():
 # --- JOB ENDPOINTS ---
 @app.post("/api/v1/jobs", tags=["Jobs"])
 def start_scraping_job(req: JobCreateRequest, bg: BackgroundTasks):
-    job_id = create_job(req.niche, req.location, req.target_count)
+    job_id = create_job(req.niche, req.location, req.target_count, req.strict_locality, req.max_radius_km)
     # Launch scraper in background
-    bg.add_task(run_scraper_task, job_id, req.niche, req.location, req.target_count)
+    bg.add_task(run_scraper_task, job_id, req.niche, req.location, req.target_count, req.strict_locality, req.max_radius_km)
     return {
         "message": "Scraping task initiated in background",
         "job_id": job_id,
         "status": "pending",
         "niche": req.niche,
         "location": req.location,
-        "target_count": req.target_count
+        "target_count": req.target_count,
+        "strict_locality": req.strict_locality,
+        "max_radius_km": req.max_radius_km
     }
 
 @app.get("/api/v1/jobs", tags=["Jobs"])
@@ -491,8 +511,8 @@ def trigger_external_job(req: ExternalJobRequest, bg: BackgroundTasks, key_info:
     Allow external CRMs, Zapier, Make, or internal scripts to remotely launch a scrape.
     Protected by header: X-API-Key: pf_live_...
     """
-    job_id = create_job(req.niche, req.location, req.target_count)
-    bg.add_task(run_scraper_task, job_id, req.niche, req.location, req.target_count, req.webhook_url)
+    job_id = create_job(req.niche, req.location, req.target_count, req.strict_locality, req.max_radius_km)
+    bg.add_task(run_scraper_task, job_id, req.niche, req.location, req.target_count, req.strict_locality, req.max_radius_km, req.webhook_url)
     return {
         "success": True,
         "message": "Scrape task triggered remotely via API",
@@ -502,6 +522,8 @@ def trigger_external_job(req: ExternalJobRequest, bg: BackgroundTasks, key_info:
         "niche": req.niche,
         "location": req.location,
         "target_count": req.target_count,
+        "strict_locality": req.strict_locality,
+        "max_radius_km": req.max_radius_km,
         "status_check_url": f"/api/v1/external/jobs/{job_id}"
     }
 

@@ -42,10 +42,19 @@ def init_db(db_path: str = DB_PATH):
         status TEXT DEFAULT 'pending', -- pending, running, completed, failed
         progress_pct INTEGER DEFAULT 0,
         error_message TEXT,
+        strict_locality TEXT,
+        max_radius_km REAL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     """)
+
+    # Ensure schema migrations for existing databases
+    for col, ctype in [("strict_locality", "TEXT"), ("max_radius_km", "REAL")]:
+        try:
+            cursor.execute(f"ALTER TABLE jobs ADD COLUMN {col} {ctype};")
+        except sqlite3.OperationalError:
+            pass # Column already exists
 
     # 3. Leads Table
     cursor.execute("""
@@ -94,12 +103,12 @@ def init_db(db_path: str = DB_PATH):
     conn.close()
 
 # --- JOB HELPERS ---
-def create_job(niche: str, location: str, target_count: int, db_path: str = DB_PATH) -> int:
+def create_job(niche: str, location: str, target_count: int, strict_locality: Optional[str] = None, max_radius_km: Optional[float] = None, db_path: str = DB_PATH) -> int:
     conn = get_connection(db_path)
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO jobs (niche, location, target_count, status, progress_pct) VALUES (?, ?, ?, 'pending', 0);",
-        (niche, location, target_count)
+        "INSERT INTO jobs (niche, location, target_count, strict_locality, max_radius_km, status, progress_pct) VALUES (?, ?, ?, ?, ?, 'pending', 0);",
+        (niche, location, target_count, strict_locality, max_radius_km)
     )
     job_id = cur.lastrowid
     conn.commit()
