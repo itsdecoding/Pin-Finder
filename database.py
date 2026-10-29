@@ -1,8 +1,9 @@
 import sqlite3
 import json
 import os
+import re
 import secrets
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Set
 from datetime import datetime
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "pin_finder.db")
@@ -50,7 +51,7 @@ def init_db(db_path: str = DB_PATH):
     """)
 
     # Ensure schema migrations for existing databases
-    for col, ctype in [("strict_locality", "TEXT"), ("max_radius_km", "REAL")]:
+    for col, ctype in [("strict_locality", "TEXT"), ("max_radius_km", "REAL"), ("skip_duplicates", "BOOLEAN DEFAULT 1")]:
         try:
             cursor.execute(f"ALTER TABLE jobs ADD COLUMN {col} {ctype};")
         except sqlite3.OperationalError:
@@ -78,6 +79,11 @@ def init_db(db_path: str = DB_PATH):
     );
     """)
 
+    # Indices for high-speed deduplication lookups
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_leads_maps_url ON leads(maps_url);")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_leads_title ON leads(title);")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_leads_job_id ON leads(job_id);")
+
     # 4. API Keys Table
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS api_keys (
@@ -103,17 +109,53 @@ def init_db(db_path: str = DB_PATH):
     conn.close()
 
 # --- JOB HELPERS ---
-def create_job(niche: str, location: str, target_count: int, strict_locality: Optional[str] = None, max_radius_km: Optional[float] = None, db_path: str = DB_PATH) -> int:
+def create_job(
+    niche: str,
+    location: str,
+    target_count: int,
+    strict_locality: Optional[str] = None,
+    max_radius_km: Optional[float] = None,
+    skip_duplicates: bool = True,
+    db_path: str = DB_PATH
+) -> int:
     conn = get_connection(db_path)
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO jobs (niche, location, target_count, strict_locality, max_radius_km, status, progress_pct) VALUES (?, ?, ?, ?, ?, 'pending', 0);",
-        (niche, location, target_count, strict_locality, max_radius_km)
+        "INSERT INTO jobs (niche, location, target_count, strict_locality, max_radius_km, skip_duplicates, status, progress_pct) VALUES (?, ?, ?, ?, ?, ?, 'pending', 0);",
+        (niche, location, target_count, strict_locality, max_radius_km, 1 if skip_duplicates else 0)
     )
     job_id = cur.lastrowid
     conn.commit()
     conn.close()
     return job_id
+
+def get_existing_lead_identifiers(db_path: str = DB_PATH) -> Dict[str, Set[str]]:
+    """Retrieve normalized identifiers of all leads already in the database to prevent duplicates."""
+    conn = get_connection(db_path)
+    cur = conn.cursor()
+    cur.execute("SELECT title, phone, maps_url FROM leads;")
+    rows = cur.fetchall()
+    conn.close()
+
+    urls: Set[str] = set()
+    titles: Set[str] = set()
+    phones: Set[str] = set()
+
+    for r in rows:
+        url = (r["maps_url"] or "").strip().lower()
+        if url:
+            clean_url = url.split("?")[0].rstrip("/")
+            urls.add(clean_url)
+        
+        t = (r["title"] or "").strip().lower()
+        if t:
+            titles.add(t)
+
+        p = re.sub(r"\D", "", r["phone"] or "")
+        if len(p) >= 10:
+            phones.add(p[-10:])
+
+    return {"urls": urls, "titles": titles, "phones": phones}
 
 def update_job_progress(job_id: int, status: str, progress_pct: int, scraped_count: int = 0, error: str = None, db_path: str = DB_PATH):
     conn = get_connection(db_path)
@@ -146,7 +188,7 @@ def list_jobs(limit: int = 50, db_path: str = DB_PATH) -> List[Dict[str, Any]]:
     return [dict(r) for r in rows]
 
 # --- LEAD HELPERS ---
-def insert_leads(job_id: int, leads: List[Dict[str, Any]], db_path: str = DB_PATH) -> int:
+def insert_leads(job_id: int, leads: List[Dict[str, Any]], check_duplicates: bool = True, db_path: str = DB_PATH) -> int:
     conn = get_connection(db_path)
     cur = conn.cursor()
     inserted = 0
@@ -156,6 +198,21 @@ def insert_leads(job_id: int, leads: List[Dict[str, Any]], db_path: str = DB_PAT
         emails_json = json.dumps(l.get("emails") or [])
         socials_json = json.dumps(l.get("socials") or {})
         enrichment_status = l.get("enrichment_status") or ("not_started" if has_website else "no_website")
+        maps_url = (l.get("maps_url") or "").strip()
+        clean_url = maps_url.split("?")[0].rstrip("/") if maps_url else ""
+        title = (l.get("title") or "").strip()
+        phone_digits = re.sub(r"\D", "", l.get("phone") or "")
+
+        if check_duplicates:
+            # Check if already present in database
+            if clean_url:
+                cur.execute("SELECT id FROM leads WHERE maps_url LIKE ? LIMIT 1;", (f"{clean_url}%",))
+                if cur.fetchone():
+                    continue
+            elif title and len(phone_digits) >= 10:
+                cur.execute("SELECT id FROM leads WHERE lower(title) = ? AND phone LIKE ? LIMIT 1;", (title.lower(), f"%{phone_digits[-10:]}%"))
+                if cur.fetchone():
+                    continue
 
         cur.execute(
             """
@@ -166,14 +223,14 @@ def insert_leads(job_id: int, leads: List[Dict[str, Any]], db_path: str = DB_PAT
             """,
             (
                 job_id,
-                l.get("title", ""),
+                title,
                 l.get("category", ""),
                 l.get("rating"),
                 l.get("reviews_count"),
                 l.get("address", ""),
                 l.get("phone", ""),
                 website,
-                l.get("maps_url", ""),
+                maps_url,
                 1 if has_website else 0,
                 emails_json,
                 socials_json,
@@ -183,6 +240,7 @@ def insert_leads(job_id: int, leads: List[Dict[str, Any]], db_path: str = DB_PAT
         inserted += 1
     conn.commit()
     conn.close()
+    return inserted
     return inserted
 
 def get_lead(lead_id: int, db_path: str = DB_PATH) -> Optional[Dict[str, Any]]:

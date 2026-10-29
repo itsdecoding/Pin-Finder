@@ -4,7 +4,7 @@ import logging
 import math
 import re
 import urllib.parse
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Set
 from playwright.async_api import async_playwright, Page, Locator
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - [%(levelname)s] - %(message)s")
@@ -261,7 +261,9 @@ class GoogleMapsScraper:
         location: str,
         limit: int = 10,
         strict_locality: Optional[str] = None,
-        max_radius_km: Optional[float] = None
+        max_radius_km: Optional[float] = None,
+        existing_identifiers: Optional[Dict[str, Set[str]]] = None,
+        skip_duplicates: bool = True
     ) -> List[Dict[str, Any]]:
         # Formulate search query with phrase emphasis if strict locality specified
         if strict_locality and strict_locality.lower() not in location.lower():
@@ -281,6 +283,8 @@ class GoogleMapsScraper:
         logger.info(f"Starting Single-Page Stream Scrape: '{query}' (Target: {limit})")
         if strict_locality:
             logger.info(f"Strict Micro-Locality Filter Active: '{strict_locality}' | Max Radius: {max_radius_km or 'strict'} km")
+        if skip_duplicates and existing_identifiers:
+            logger.info(f"Incremental Deduplication Active: {len(existing_identifiers.get('urls', set()))} known leads will be skipped.")
         if proxy_config:
             logger.info(f"Using Proxy: {proxy_config.get('server')}")
         else:
@@ -318,9 +322,17 @@ class GoogleMapsScraper:
             page = await context.new_page()
 
             try:
-                # 1. Load Google Maps ONCE in this single session
+                # 1. Load Google Maps ONCE in this single session (with retry resilience)
                 logger.info(f"Opening Single-Page Session: {search_url}")
-                await page.goto(search_url, wait_until="domcontentloaded", timeout=45000)
+                for attempt in range(3):
+                    try:
+                        await page.goto(search_url, wait_until="domcontentloaded", timeout=45000)
+                        break
+                    except Exception as err:
+                        if attempt == 2:
+                            raise err
+                        logger.warning(f"Connection glitch on attempt {attempt+1} ({err}), retrying in 2s...")
+                        await asyncio.sleep(2)
                 await self._check_captcha(page)
                 await self._handle_consent(page)
                 await page.wait_for_timeout(2500)
@@ -340,8 +352,9 @@ class GoogleMapsScraper:
 
                 evaluated_titles = set()
                 scroll_attempts = 0
-                # Scale max scroll attempts dynamically with target limit (approx 5-7 leads per scroll)
-                max_scroll_attempts = max(15, (limit // 4) + 5)
+                # Scale max scroll attempts dynamically with target limit plus existing leads headroom
+                existing_count = len(existing_identifiers.get("urls", set())) if (skip_duplicates and existing_identifiers) else 0
+                max_scroll_attempts = max(35, ((limit + existing_count) // 4) + 15)
                 prev_card_count = 0
                 no_new_cards_count = 0
 
@@ -364,11 +377,33 @@ class GoogleMapsScraper:
                         if temp_title:
                             evaluated_titles.add(temp_title)
 
+                        # 1. Historical Database Deduplication Check
+                        if skip_duplicates and existing_identifiers:
+                            link_elem = card.locator("a.hfpxzc").first
+                            raw_href = ""
+                            if await link_elem.count() > 0:
+                                raw_href = (await link_elem.get_attribute("href") or "").split("?")[0].rstrip("/").lower()
+                            if raw_href and raw_href in existing_identifiers.get("urls", set()):
+                                logger.info(f"  [SKIPPED - ALREADY IN DATABASE]: URL match for '{temp_title or raw_href[:40]}'")
+                                continue
+
+                            clean_title = temp_title.lower().strip()
+                            if clean_title and clean_title in existing_identifiers.get("titles", set()):
+                                logger.info(f"  [SKIPPED - ALREADY IN DATABASE]: Title match '{temp_title}'")
+                                continue
+
                         card_text = await card.inner_text()
                         item = await self._extract_card_info(card, page)
                         
                         if not item["title"]:
                             continue
+
+                        # Phone number deduplication check
+                        if skip_duplicates and existing_identifiers and item["phone"]:
+                            phone_digits = re.sub(r"\D", "", item["phone"])
+                            if len(phone_digits) >= 10 and phone_digits[-10:] in existing_identifiers.get("phones", set()):
+                                logger.info(f"  [SKIPPED - ALREADY IN DATABASE]: Phone match for '{item['title']}' ({item['phone']})")
+                                continue
 
                         # Strict Micro-Locality Filter Check
                         is_match, reason = is_locality_match(
@@ -386,7 +421,7 @@ class GoogleMapsScraper:
                         if item["title"] not in seen_titles:
                             seen_titles.add(item["title"])
                             results.append(item)
-                            logger.info(f"[{len(results)}/{limit}] Extracted (Matched Locality): {item['title']} | Phone: {item['phone']} | Web: {bool(item['website'])}")
+                            logger.info(f"[{len(results)}/{limit}] Extracted (Fresh Lead): {item['title']} | Phone: {item['phone']} | Web: {bool(item['website'])}")
 
                     if len(results) >= limit:
                         break

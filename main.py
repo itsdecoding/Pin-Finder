@@ -18,7 +18,8 @@ from database import (
     insert_leads, get_lead, update_lead_enrichment, list_leads, get_connection,
     create_api_key, list_api_keys, revoke_api_key, validate_api_key,
     get_webhook_config, save_webhook_config,
-    get_proxy_config, save_proxy_config
+    get_proxy_config, save_proxy_config,
+    get_existing_lead_identifiers
 )
 from auth import (
     register_user, authenticate_user, create_access_token, decode_token
@@ -68,6 +69,7 @@ class JobCreateRequest(BaseModel):
     target_count: int = Field(10, ge=1, le=500, example=10)
     strict_locality: Optional[str] = Field(None, example="Sayyed Nagar")
     max_radius_km: Optional[float] = Field(None, example=1.0)
+    skip_duplicates: bool = Field(True, example=True)
 
 class ApiKeyCreateRequest(BaseModel):
     name: str = Field("CRM Integration Key", example="GoHighLevel Key")
@@ -86,6 +88,7 @@ class ExternalJobRequest(BaseModel):
     target_count: int = Field(10, ge=1, le=500, example=10)
     strict_locality: Optional[str] = Field(None, example="Sayyed Nagar")
     max_radius_km: Optional[float] = Field(None, example=1.0)
+    skip_duplicates: bool = Field(True, example=True)
     webhook_url: Optional[str] = Field(None, example="https://webhook.site/...")
 
 # --- AUTH DEPENDENCIES ---
@@ -140,9 +143,10 @@ async def run_scraper_task(
     target_count: int,
     strict_locality: Optional[str] = None,
     max_radius_km: Optional[float] = None,
+    skip_duplicates: bool = True,
     custom_webhook: Optional[str] = None
 ):
-    logger.info(f"Background worker started for Job #{job_id}: {niche} in {location} (Strict: {strict_locality}, Radius: {max_radius_km})")
+    logger.info(f"Background worker started for Job #{job_id}: {niche} in {location} (Strict: {strict_locality}, Radius: {max_radius_km}, SkipDupes: {skip_duplicates})")
     try:
         update_job_progress(job_id, status="running", progress_pct=15)
         
@@ -150,20 +154,25 @@ async def run_scraper_task(
         proxy_cfg = get_proxy_config()
         active_proxy = proxy_cfg["proxy_url"] if proxy_cfg.get("proxy_enabled") else None
 
+        # Fetch existing lead identifiers to skip if deduplication is enabled
+        existing_identifiers = get_existing_lead_identifiers() if skip_duplicates else None
+
         scraper = GoogleMapsScraper(headless=True, proxy=active_proxy)
         leads = await scraper.scrape(
             niche=niche,
             location=location,
             limit=target_count,
             strict_locality=strict_locality,
-            max_radius_km=max_radius_km
+            max_radius_km=max_radius_km,
+            existing_identifiers=existing_identifiers,
+            skip_duplicates=skip_duplicates
         )
 
         update_job_progress(job_id, status="running", progress_pct=85, scraped_count=len(leads))
 
-        # Store leads in SQLite database
+        # Store leads in SQLite database with duplicate protection
         if leads:
-            insert_leads(job_id, leads)
+            insert_leads(job_id, leads, check_duplicates=skip_duplicates)
 
         update_job_progress(
             job_id,
@@ -247,9 +256,9 @@ def get_stats():
 # --- JOB ENDPOINTS ---
 @app.post("/api/v1/jobs", tags=["Jobs"])
 def start_scraping_job(req: JobCreateRequest, bg: BackgroundTasks):
-    job_id = create_job(req.niche, req.location, req.target_count, req.strict_locality, req.max_radius_km)
+    job_id = create_job(req.niche, req.location, req.target_count, req.strict_locality, req.max_radius_km, req.skip_duplicates)
     # Launch scraper in background
-    bg.add_task(run_scraper_task, job_id, req.niche, req.location, req.target_count, req.strict_locality, req.max_radius_km)
+    bg.add_task(run_scraper_task, job_id, req.niche, req.location, req.target_count, req.strict_locality, req.max_radius_km, req.skip_duplicates)
     return {
         "message": "Scraping task initiated in background",
         "job_id": job_id,
@@ -258,7 +267,8 @@ def start_scraping_job(req: JobCreateRequest, bg: BackgroundTasks):
         "location": req.location,
         "target_count": req.target_count,
         "strict_locality": req.strict_locality,
-        "max_radius_km": req.max_radius_km
+        "max_radius_km": req.max_radius_km,
+        "skip_duplicates": req.skip_duplicates
     }
 
 @app.get("/api/v1/jobs", tags=["Jobs"])
@@ -511,8 +521,8 @@ def trigger_external_job(req: ExternalJobRequest, bg: BackgroundTasks, key_info:
     Allow external CRMs, Zapier, Make, or internal scripts to remotely launch a scrape.
     Protected by header: X-API-Key: pf_live_...
     """
-    job_id = create_job(req.niche, req.location, req.target_count, req.strict_locality, req.max_radius_km)
-    bg.add_task(run_scraper_task, job_id, req.niche, req.location, req.target_count, req.strict_locality, req.max_radius_km, req.webhook_url)
+    job_id = create_job(req.niche, req.location, req.target_count, req.strict_locality, req.max_radius_km, req.skip_duplicates)
+    bg.add_task(run_scraper_task, job_id, req.niche, req.location, req.target_count, req.strict_locality, req.max_radius_km, req.skip_duplicates, req.webhook_url)
     return {
         "success": True,
         "message": "Scrape task triggered remotely via API",
@@ -524,6 +534,7 @@ def trigger_external_job(req: ExternalJobRequest, bg: BackgroundTasks, key_info:
         "target_count": req.target_count,
         "strict_locality": req.strict_locality,
         "max_radius_km": req.max_radius_km,
+        "skip_duplicates": req.skip_duplicates,
         "status_check_url": f"/api/v1/external/jobs/{job_id}"
     }
 

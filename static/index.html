@@ -320,6 +320,20 @@
             </div>
           </div>
 
+          <!-- Smart Deduplication Across Campaigns -->
+          <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <input type="checkbox" id="form-skip-duplicates" checked class="rounded bg-slate-950 border-slate-700 text-indigo-600 focus:ring-indigo-500 h-4 w-4">
+              <div>
+                <label for="form-skip-duplicates" class="text-xs font-semibold text-white cursor-pointer">
+                  Skip Previously Scraped Leads (Global Deduplication)
+                </label>
+                <p class="text-[11px] text-slate-400 mt-0.5">Automatically scrolls past listings already in your database so you only collect fresh, unseen prospects.</p>
+              </div>
+            </div>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold">Fresh Only</span>
+          </div>
+
           <div class="pt-4 border-t border-slate-800/80 flex items-center justify-end gap-3">
             <button type="button" onclick="switchView('dashboard')" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-lg">Cancel</button>
             <button type="submit" id="btn-submit-scrape" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-6 py-2.5 rounded-xl shadow-lg shadow-indigo-600/30 transition flex items-center gap-2">
@@ -1052,12 +1066,14 @@ curl -X POST "http://localhost:8000/api/v1/external/jobs" \
         max_radius_km = radVal > 0 ? radVal : null;
       }
 
-      await launchScrape(niche, location, count, strict_locality, max_radius_km);
+      const skip_duplicates = document.getElementById('form-skip-duplicates')?.checked ?? true;
+
+      await launchScrape(niche, location, count, strict_locality, max_radius_km, skip_duplicates);
     }
 
-    async function launchScrape(niche, location, target_count, strict_locality = null, max_radius_km = null) {
+    async function launchScrape(niche, location, target_count, strict_locality = null, max_radius_km = null, skip_duplicates = true) {
       try {
-        const payload = { niche, location, target_count };
+        const payload = { niche, location, target_count, skip_duplicates };
         if (strict_locality) payload.strict_locality = strict_locality;
         if (max_radius_km !== null) payload.max_radius_km = max_radius_km;
 
