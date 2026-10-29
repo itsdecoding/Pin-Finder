@@ -340,7 +340,8 @@ class GoogleMapsScraper:
 
                 evaluated_titles = set()
                 scroll_attempts = 0
-                max_scroll_attempts = 10
+                # Scale max scroll attempts dynamically with target limit (approx 5-7 leads per scroll)
+                max_scroll_attempts = max(15, (limit // 4) + 5)
                 prev_card_count = 0
                 no_new_cards_count = 0
 
